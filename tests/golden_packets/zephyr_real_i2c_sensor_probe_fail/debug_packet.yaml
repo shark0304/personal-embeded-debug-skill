@@ -1,0 +1,15 @@
+case_id: zephyr_real_i2c_sensor_probe_fail
+platform: zephyr
+toolchain: zephyr-sdk
+build_system: west
+artifacts:
+  dts: [build/zephyr/zephyr.dts]
+  kconfig: [build/zephyr/include/generated/autoconf.h]
+  build_log: [build.log]
+symptoms: ["I2C sensor device_is_ready false"]
+reproducibility: always
+last_known_good: before overlay refactor
+measurements: []
+constraints: ["sanitized sample"]
+missing_evidence: ["runtime init log", "I2C bus waveform"]
+analysis_status: incomplete

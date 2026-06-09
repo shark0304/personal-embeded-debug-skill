@@ -1,0 +1,28 @@
+case_id: zephyr-st-imu-debug-loop
+created_utc: '2026-06-09T16:31:33.430460+00:00'
+project_root: /Users/a/research/zephyr-st-imu-debug-loop
+platform: zephyr
+board: xiao_ble/nrf52840/sense
+shield: unknown
+toolchain: zephyr
+build_system: cmake
+artifacts:
+  build_log:
+  - build.log
+  serial_log:
+  - serial.log
+  kconfig:
+  - build/zephyr/.config
+  - prj.conf
+  dts:
+  - boards/seeed/xiao_ble/xiao_ble_nrf52840_sense.dts
+  - build/zephyr/zephyr.dts
+symptoms: []
+reproducibility: unknown
+last_known_good: unknown
+measurements: []
+constraints: []
+missing_evidence:
+- logic_trace
+- scope_trace
+analysis_status: incomplete

@@ -1,0 +1,17 @@
+patterns:
+  - id: cortexm.precise_bus_fault.bfar_valid
+    domain: cortexm
+    symptoms: ["HardFault", "PRECISERR", "BFARVALID"]
+    required_evidence: ["CFSR", "HFSR", "BFAR", "stacked_pc", "ELF"]
+    confidence_rules: "Medium when BFARVALID and PRECISERR are set; high after symbolicated PC and address ownership are verified."
+    verify: "Run fault_analyzer.py and symbolicate stacked PC; inspect BFAR address owner."
+    fix: "Fix invalid access, peripheral clock, MPU region, or pointer ownership depending on BFAR."
+    regression_hint: "Store fault registers, stacked frame, ELF symbol, and expected root cause."
+  - id: cortexm.invalid_exc_return
+    domain: cortexm
+    symptoms: ["INVPC", "exception return fault", "corrupted LR"]
+    required_evidence: ["CFSR", "EXC_RETURN", "MSP", "PSP", "task_stack"]
+    confidence_rules: "High only when EXC_RETURN decode and stack bounds show invalid return context."
+    verify: "Decode EXC_RETURN and inspect selected stack frame for corruption."
+    fix: "Fix stack overflow, ISR return corruption, or RTOS context switch misuse."
+    regression_hint: "Keep stack snapshot and EXC_RETURN decode."

@@ -1,0 +1,17 @@
+patterns:
+  - id: linux.probe_defer_missing_regulator
+    domain: embedded_linux
+    symptoms: ["probe deferred", "supply not found", "devices_deferred"]
+    required_evidence: ["dmesg", "devices_deferred", "DTS", "kernel config"]
+    confidence_rules: "High when devices_deferred names the supplier and DTS/config lacks it."
+    verify: "Run linux_log_triage.py, dts_probe_check.py, and kconfig_check.py."
+    fix: "Add/fix regulator node, supply property, or supplier driver config."
+    regression_hint: "Golden packet with dmesg, DTS, config, and expected supplier."
+  - id: linux.compatible_mismatch
+    domain: embedded_linux
+    symptoms: ["probe never called", "device absent", "driver built"]
+    required_evidence: ["booted DTS", "compatible", "driver of_match_table", "module alias"]
+    confidence_rules: "Medium when compatible mismatch is visible; high when correcting compatible triggers probe."
+    verify: "Check booted DTS compatible and driver match table."
+    fix: "Correct compatible string or add supported fallback according to binding."
+    regression_hint: "Store booted DTS and expected compatible."

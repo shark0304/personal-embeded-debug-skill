@@ -1,0 +1,14 @@
+case_id: freertos_real_priority_inversion
+platform: freertos
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  rtos_snapshot: [task_snapshot.txt]
+  serial_log: [watchdog.log]
+symptoms: ["control task starves while logger task runs"]
+reproducibility: load-dependent
+last_known_good: before logging feature
+measurements: []
+constraints: ["sanitized sample"]
+missing_evidence: ["resource owner/wait graph", "mutex type"]
+analysis_status: incomplete

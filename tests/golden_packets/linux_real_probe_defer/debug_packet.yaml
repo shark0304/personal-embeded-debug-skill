@@ -1,0 +1,15 @@
+case_id: linux_real_probe_defer
+platform: embedded-linux
+toolchain: gcc
+build_system: yocto
+artifacts:
+  dmesg: [dmesg.log]
+  dts: [booted.dts]
+  kconfig: [.config]
+symptoms: ["driver deferred probe forever"]
+reproducibility: always
+last_known_good: previous DTS
+measurements: []
+constraints: ["sanitized sample"]
+missing_evidence: ["devices_deferred", "regulator_summary", "clk_summary"]
+analysis_status: incomplete

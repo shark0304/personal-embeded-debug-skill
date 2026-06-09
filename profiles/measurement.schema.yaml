@@ -1,0 +1,28 @@
+schema_version: 1
+name: measurement
+description: Structured lab or firmware measurement attached to a debug packet.
+fields:
+  measurement_id:
+    type: string
+    description: Stable id for this measurement.
+  kind:
+    type: string
+    description: voltage, current, waveform, logic, latency, throughput, memory, temperature, or RF.
+  instrument:
+    type: string
+    description: Instrument, probe, firmware counter, or kernel tool used.
+  setup:
+    type: string
+    description: Probe point, sample rate, trigger, firmware build, and environmental setup.
+  expected:
+    type: string
+    description: Expected value, waveform, limit, or timing.
+  observed:
+    type: string
+    description: Observed value, waveform, limit, or timing.
+  artifact:
+    type: string
+    description: Path to CSV, screenshot, waveform, log, or raw output.
+  interpretation:
+    type: string
+    description: What this measurement proves, disproves, or leaves unknown.

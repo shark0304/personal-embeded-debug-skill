@@ -1,0 +1,17 @@
+patterns:
+  - id: ota.rollback_unconfirmed_image
+    domain: ota
+    symptoms: ["OTA writes", "rollback after reboot", "new image not kept"]
+    required_evidence: ["bootloader log", "slot state", "image valid marker", "partition table"]
+    confidence_rules: "High when bootloader reports pending image and app never confirms it."
+    verify: "Inspect slot state before and after first boot."
+    fix: "Confirm image after health checks and fix validation path."
+    regression_hint: "Golden OTA packet with slot state."
+  - id: security.antirollback_blocks_downgrade
+    domain: ota_security
+    symptoms: ["downgrade rejected", "secure version error"]
+    required_evidence: ["secure version", "eFuse/option-byte state", "image metadata"]
+    confidence_rules: "High only after read-only secure state confirms policy."
+    verify: "Read secure version and image metadata without changing fuses."
+    fix: "Ship recovery image with valid secure version; do not burn fuses as diagnosis."
+    regression_hint: "Provisioning packet with recovery path."

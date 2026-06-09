@@ -1,0 +1,51 @@
+{
+  "dossier_version": 1,
+  "project": {
+    "name": "",
+    "board_revision": "",
+    "product_stage": "",
+    "last_known_good": ""
+  },
+  "hardware": {
+    "mcu_or_soc": "",
+    "module": "",
+    "power_tree": [],
+    "clock_tree": [],
+    "boot_pins_or_straps": [],
+    "debug_connector": "",
+    "known_errata": []
+  },
+  "firmware": {
+    "toolchain": "",
+    "sdk_or_bsp": "",
+    "rtos": "",
+    "boot_chain": [],
+    "memory_map": [],
+    "linker_scripts": [],
+    "generated_config_inputs": []
+  },
+  "linux": {
+    "kernel_version": "",
+    "bootloader": "",
+    "rootfs": "",
+    "dts_files": [],
+    "defconfig": "",
+    "critical_drivers": []
+  },
+  "debug": {
+    "probe": "",
+    "gdb_server": "",
+    "log_backend": "",
+    "trace_tools": [],
+    "standard_capture_commands": []
+  },
+  "interfaces": {
+    "uart": [],
+    "i2c": [],
+    "spi": [],
+    "can": [],
+    "usb": [],
+    "ethernet": [],
+    "wireless": []
+  }
+}

@@ -1,0 +1,17 @@
+patterns:
+  - id: tinyml.preprocessing_mismatch
+    domain: tinyml
+    symptoms: ["PC output correct", "target output wrong", "same model"]
+    required_evidence: ["golden raw input", "target input tensor", "scale", "zero_point"]
+    confidence_rules: "High when vector compare shows input tensor mismatch before Invoke."
+    verify: "Run vector_compare.py on Python and firmware tensor dumps."
+    fix: "Align normalization, quantization, channel order, endian, or clipping."
+    regression_hint: "Golden vector packet with target tensor."
+  - id: tinyml.arena_growth_missing_op
+    domain: tinyml
+    symptoms: ["arena allocation failure", "model update"]
+    required_evidence: ["op list", "arena log", "model size", "memory budget"]
+    confidence_rules: "Medium from arena failure; high after allocator log identifies growth bucket."
+    verify: "Run memory_budget.py and capture TFLM recording allocator output."
+    fix: "Resize arena with evidence, reduce ops, or place arena in correct memory."
+    regression_hint: "Model metadata and arena allocation packet."

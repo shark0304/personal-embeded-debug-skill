@@ -1,0 +1,14 @@
+case_id: tinyml_real_memory_overflow
+platform: tinyml
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  serial_log: [tflm_arena.log]
+  map: [firmware.map]
+symptoms: ["TFLM arena allocation failure after model update"]
+reproducibility: always
+last_known_good: previous model revision
+measurements: []
+constraints: ["sanitized sample without model file"]
+missing_evidence: ["model op list", "arena recording buckets", "exact arena size"]
+analysis_status: incomplete

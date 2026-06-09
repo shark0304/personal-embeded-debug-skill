@@ -1,0 +1,20 @@
+case_id: zephyr_missing_i2c_alias
+platform: zephyr
+toolchain: zephyr-sdk
+build_system: west
+artifacts:
+  dts:
+    - build/zephyr/zephyr.dts
+  kconfig:
+    - build/zephyr/include/generated/autoconf.h
+  build_log:
+    - build.log
+symptoms:
+  - device_is_ready false for I2C peripheral.
+reproducibility: always
+last_known_good: unknown
+measurements: []
+constraints: []
+missing_evidence:
+  - node alias and driver symbol check
+analysis_status: incomplete

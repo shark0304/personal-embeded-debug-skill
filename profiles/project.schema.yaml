@@ -1,0 +1,28 @@
+schema_version: 1
+name: project_profile
+description: Project facts that connect source tree, build system, board, and debug workflow.
+fields:
+  project_id:
+    type: string
+    description: Stable project name or repository identifier.
+  board_profile:
+    type: string
+    description: Path or id of the board profile used by this project.
+  platform:
+    type: string
+    description: Zephyr, ESP-IDF, Cortex-M generic, FreeRTOS, Embedded Linux, TinyML, or other.
+  toolchain:
+    type: string
+    description: Compiler, version, SDK/BSP, and relevant package lock.
+  build_system:
+    type: string
+    description: CMake, west, idf.py, PlatformIO, Yocto, Buildroot, Make, or other.
+  critical_artifacts:
+    type: list
+    description: Expected ELF, map, logs, DTS, Kconfig, sdkconfig, partition table, or boot artifacts.
+  test_strategy:
+    type: list
+    description: Unit, integration, HIL, golden packet, and regression checks.
+  recovery_path:
+    type: string
+    description: Known way to recover the device after bad flash/provisioning.

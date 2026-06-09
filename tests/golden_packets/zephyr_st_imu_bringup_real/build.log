@@ -1,0 +1,14 @@
+west build -b xiao_ble/nrf52840/sense .
+-- Zephyr base: /work/zephyr
+-- Zephyr commit: 11a87708d4158d8c94b4efdb49ebe0fbdc6b6f3d
+-- Board: xiao_ble/nrf52840/sense
+-- Found toolchain: zephyr
+-- ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+-- Application: zephyr-st-imu-debug-loop
+-- Found devicetree board file: boards/seeed/xiao_ble/xiao_ble_nrf52840_sense.dts
+-- Generated zephyr.dts: build/zephyr/zephyr.dts
+-- Generated .config: build/zephyr/.config
+-- Configuring done
+-- Generating done
+-- Build files have been written to: build
+FAILED: sanitized runtime bring-up sample reports LSM6DSL initialization error on target hardware.

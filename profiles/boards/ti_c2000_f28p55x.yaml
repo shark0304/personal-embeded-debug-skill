@@ -1,0 +1,10 @@
+board_name: ti_c2000_f28p55x
+vendor: Texas Instruments
+arch: c28x
+toolchain: ti-cgt or clang
+debug_probe: XDS110 or XDS200
+build_system: cmake or CCS
+common_artifacts: [map, linker_cmd, serial_log, adc_pwm_capture, fault_log]
+common_failure_modes: [pwm_trip, adc_trigger_timing, linker_memory_overflow, flash_ramfunc, clock_sync]
+recommended_runbooks: [boot_failure_runbook, low_power_runbook]
+recommended_scripts: [map_memory_summary.py, register_write_check.py]

@@ -1,0 +1,9 @@
+patterns:
+  - id: boot.root_device_wait
+    domain: boot
+    symptoms: ["Waiting for root device", "rootfs mount failure"]
+    required_evidence: ["boot log", "bootargs", "kernel config", "DTS storage node"]
+    confidence_rules: "High when root device names missing storage driver or wrong DT node."
+    verify: "Run boot_log_timeline.py and kconfig_check.py."
+    fix: "Correct root=, build storage driver in, or fix storage DT node."
+    regression_hint: "Golden boot log with expected rootfs branch."

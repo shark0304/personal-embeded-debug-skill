@@ -1,0 +1,8 @@
+interface:
+  display_name: "Embedded Debug Workbench"
+  short_description: "Evidence-first Zephyr, RTOS, and Linux debug"
+  brand_color: "#0F766E"
+  default_prompt: "Use $embedded-debug to collect a debug packet, rank hypotheses, and produce a verification-ready report for this embedded issue."
+
+policy:
+  allow_implicit_invocation: true

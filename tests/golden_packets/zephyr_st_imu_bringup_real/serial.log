@@ -1,0 +1,6 @@
+*** Booting Zephyr OS build v3.5.99-ncs1 ***
+LSM6DSL sensor samples:
+[00:00:00.007,934] <err> i2c_nrfx_twim: Error 0x0BAE0001 occurred for message 0
+[00:00:00.016,448] <err> LSM6DSL: failed to reboot device
+[00:00:00.016,448] <err> LSM6DSL: Failed to initialize chip
+[00:00:00.016,479] <err> sample: device lsm6dsl not ready

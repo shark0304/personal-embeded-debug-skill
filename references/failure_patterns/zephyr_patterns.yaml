@@ -1,0 +1,17 @@
+patterns:
+  - id: zephyr.device_not_ready.disabled_node
+    domain: zephyr
+    symptoms: ["device_is_ready false", "node exists in source overlay"]
+    required_evidence: ["generated zephyr.dts", "autoconf.h", "node status"]
+    confidence_rules: "High when generated DTS shows disabled/missing node or config lacks driver symbol."
+    verify: "Run dts_probe_check.py and kconfig_check.py on generated files."
+    fix: "Fix overlay path, status, compatible, or Kconfig symbol."
+    regression_hint: "Golden packet with generated DTS and autoconf.h."
+  - id: zephyr.overlay_not_applied
+    domain: zephyr
+    symptoms: ["overlay edit ignored", "build succeeds", "runtime unchanged"]
+    required_evidence: ["build log", "CMake cache", "generated zephyr.dts"]
+    confidence_rules: "Medium when source overlay differs; high when generated DTS lacks changes."
+    verify: "Compare source overlay to generated zephyr.dts."
+    fix: "Fix overlay filename/path/board target or west build cache."
+    regression_hint: "Store overlay and generated DTS diff."

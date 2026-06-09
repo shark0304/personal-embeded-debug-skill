@@ -1,0 +1,31 @@
+schema_version: 1
+name: board_profile
+description: Board-level facts that should not be re-asked during each debug session.
+fields:
+  board_id:
+    type: string
+    description: Stable board or product identifier.
+  revision:
+    type: string
+    description: PCB or module revision.
+  mcu_or_soc:
+    type: string
+    description: Exact MCU, SoC, or module part number.
+  power_tree:
+    type: list
+    description: Rails, regulators, enable GPIOs, sequencing, and expected voltages.
+  clock_tree:
+    type: list
+    description: Oscillators, PLLs, bus clocks, and peripheral clocks.
+  boot_chain:
+    type: list
+    description: ROM, SPL, bootloader, kernel/application, and handoff details.
+  memory_map:
+    type: list
+    description: Flash, RAM, external memory, cacheability, and DMA visibility.
+  debug_interfaces:
+    type: list
+    description: SWD/JTAG/UART/RTT/SWO/probe connection details.
+  known_errata:
+    type: list
+    description: Board or silicon errata and accepted workarounds.

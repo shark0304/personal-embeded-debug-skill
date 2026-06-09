@@ -1,0 +1,13 @@
+case_id: dma_real_cache_corruption
+platform: cortex-m
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  serial_log: [dma_rx.log]
+symptoms: ["DMA RX stale data with DCache enabled"]
+reproducibility: always
+last_known_good: DCache disabled test
+measurements: []
+constraints: ["sanitized sample"]
+missing_evidence: ["buffer address", "cache line size", "MPU/cacheability"]
+analysis_status: incomplete

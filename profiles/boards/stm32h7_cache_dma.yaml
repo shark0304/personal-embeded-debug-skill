@@ -1,0 +1,10 @@
+board_name: stm32h7_cache_dma
+vendor: STMicroelectronics
+arch: cortex-m7
+toolchain: arm-none-eabi-gcc
+debug_probe: ST-LINK or J-Link
+build_system: cmake or STM32CubeIDE
+common_artifacts: [elf, map, serial_log, fault_registers, linker_script, cube_ioc]
+common_failure_modes: [dma_cache_stale_rx, dma_inaccessible_memory, eth_lwip_cache, sdmmc_dma, vtor_bootloader]
+recommended_runbooks: [dma_cache_corruption_runbook, cortexm_hardfault_runbook]
+recommended_scripts: [dma_buffer_check.py, fault_analyzer.py, register_write_check.py]

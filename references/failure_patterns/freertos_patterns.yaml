@@ -1,0 +1,17 @@
+patterns:
+  - id: freertos.isr_priority_api_violation
+    domain: freertos
+    symptoms: ["queue assert", "crash in FromISR path", "works without RTOS"]
+    required_evidence: ["IRQ priority", "configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY", "API used"]
+    confidence_rules: "High when ISR priority is numerically above syscall threshold and calls RTOS API."
+    verify: "Run nvic_priority_check.py with the IRQ priority and threshold."
+    fix: "Lower ISR urgency or move RTOS handoff to safe interrupt/task context."
+    regression_hint: "Add IRQ priority assertion or review gate."
+  - id: freertos.priority_inversion
+    domain: freertos
+    symptoms: ["high priority task blocked", "watchdog", "medium task running"]
+    required_evidence: ["task priorities", "resource owner", "blocked waiter"]
+    confidence_rules: "Medium from wait graph; high after owner/waiter trace confirms sustained inversion."
+    verify: "Run freertos_wait_graph.py and capture runtime owner changes."
+    fix: "Use priority inheritance mutex, reduce critical section, or redesign ownership."
+    regression_hint: "Keep wait graph packet and watchdog-free HIL test."

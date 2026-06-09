@@ -1,0 +1,21 @@
+case_id: linux_probe_defer_regulator
+platform: embedded-linux
+toolchain: gcc
+build_system: yocto
+artifacts:
+  dmesg:
+    - dmesg.log
+  dts:
+    - booted.dts
+  kconfig:
+    - .config
+symptoms:
+  - Driver probe deferred forever.
+reproducibility: always
+last_known_good: previous board DTS
+measurements: []
+constraints: []
+missing_evidence:
+  - devices_deferred output
+  - regulator summary
+analysis_status: incomplete

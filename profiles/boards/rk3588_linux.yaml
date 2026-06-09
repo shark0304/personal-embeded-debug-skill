@@ -1,0 +1,10 @@
+board_name: rk3588_linux
+vendor: Rockchip
+arch: arm64
+toolchain: gcc or clang
+debug_probe: UART console and optional JTAG
+build_system: buildroot or yocto
+common_artifacts: [boot_log, dmesg, dtb, dts, defconfig, regulator_summary, clk_summary]
+common_failure_modes: [probe_defer, wrong_dtb, display_graph, camera_media_graph, rootfs_wait, suspend_resume]
+recommended_runbooks: [linux_driver_probe_runbook, boot_failure_runbook, low_power_runbook]
+recommended_scripts: [linux_log_triage.py, dts_probe_check.py, kconfig_check.py, boot_log_timeline.py]

@@ -1,0 +1,17 @@
+patterns:
+  - id: espidf.loadprohibited_null
+    domain: espidf
+    symptoms: ["Guru Meditation", "LoadProhibited", "EXCVADDR 0x0"]
+    required_evidence: ["panic log", "EXCVADDR", "backtrace", "ELF"]
+    confidence_rules: "Medium from EXCVADDR zero; high after decoded backtrace identifies bad pointer."
+    verify: "Run esp_panic_parse.py and symbolicate backtrace."
+    fix: "Fix pointer lifetime, NULL check, or ownership of object in decoded frame."
+    regression_hint: "Keep panic log and decoded frame."
+  - id: espidf.cache_disabled_flash_access
+    domain: espidf
+    symptoms: ["Cache disabled but cached memory region accessed", "ISR path"]
+    required_evidence: ["panic log", "ISR path", "IRAM/DRAM placement", "sdkconfig"]
+    confidence_rules: "High when panic string and backtrace point to flash-resident ISR path."
+    verify: "Run esp_panic_parse.py and inspect function/data placement."
+    fix: "Mark ISR code IRAM-safe and move required data to DRAM."
+    regression_hint: "Add panic log packet and IRAM-safe build check."

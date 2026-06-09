@@ -1,0 +1,10 @@
+board_name: esp32s3_idf
+vendor: Espressif
+arch: xtensa
+toolchain: xtensa-esp-elf
+debug_probe: ESP-PROG or USB-JTAG
+build_system: idf.py
+common_artifacts: [sdkconfig, serial_log, panic_log, partition_table, elf, map]
+common_failure_modes: [guru_meditation, task_watchdog, cache_disabled_flash_access, psram_dma, ota_rollback]
+recommended_runbooks: [espidf_panic_runbook, ota_mcuboot_runbook, tinyml_latency_memory_runbook]
+recommended_scripts: [esp_panic_parse.py, symbolicate_addresses.py, average_current.py]

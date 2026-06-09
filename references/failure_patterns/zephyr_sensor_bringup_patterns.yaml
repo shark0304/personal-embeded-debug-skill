@@ -1,0 +1,155 @@
+patterns:
+  - id: zephyr_sensor_wrong_i2c_address
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - I2C NACK during probe or WHO_AM_I read.
+      - Sensor node exists but no device data is produced.
+    required_evidence:
+      - generated zephyr.dts sensor node with reg address
+      - schematic address strap or board documentation
+      - serial log or logic analyzer capture showing NACK
+    confidence_rules:
+      low: Log mentions NACK but address evidence is incomplete.
+      medium: DTS reg differs from schematic or decoded capture address.
+      high: Correcting reg address produces ACK and valid identity read.
+    verify:
+      - Decode first I2C transaction and compare address with generated zephyr.dts.
+      - Confirm address strap state on schematic or hardware.
+    fix:
+      - Correct the DTS reg value or board overlay for the actual address.
+    regression_hint:
+      - Preserve decoded I2C CSV and fixed zephyr.dts in the golden packet.
+  - id: zephyr_sensor_driver_compatible_mismatch
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - Driver not built or device not created for a sensor node.
+      - WHO_AM_I returns a valid but unexpected part identity.
+    required_evidence:
+      - generated zephyr.dts compatible string
+      - Zephyr binding and driver Kconfig symbol
+      - sensor part marking or BOM
+    confidence_rules:
+      low: Compatible looks suspicious but part evidence is missing.
+      medium: Compatible does not match binding or actual part variant.
+      high: Correct compatible enables the expected driver and identity check.
+    verify:
+      - Run dts_probe_check.py for compatible and kconfig_check.py for driver symbol.
+      - Read the identity register after compatible correction.
+    fix:
+      - Use the compatible supported by the Zephyr binding for the actual sensor.
+    regression_hint:
+      - Preserve DTS before and after plus a report entry for the compatible branch.
+  - id: zephyr_sensor_bus_not_ready
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - Parent bus device is disabled or not ready.
+      - Sensor probe fails before any useful register transaction.
+    required_evidence:
+      - generated zephyr.dts parent bus node
+      - generated .config bus driver symbol
+      - build log with selected board target
+    confidence_rules:
+      low: Bus mismatch is plausible from project structure only.
+      medium: Parent bus status or bus Kconfig is missing.
+      high: Enabling the bus creates the sensor device and first transaction.
+    verify:
+      - Check bus status, pinctrl, clock-frequency, and CONFIG_I2C or CONFIG_SPI.
+    fix:
+      - Enable the correct bus node, pinctrl state, and bus driver symbol.
+    regression_hint:
+      - Add generated DTS and kconfig checks to expected_report.md.
+  - id: zephyr_sensor_power_rail_not_stable
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - I2C line error or SPI garbage on the first transaction.
+      - Probe succeeds after reset delay or repeated boot attempts.
+    required_evidence:
+      - serial log with first-transaction failure
+      - power rail or enable GPIO scope capture
+      - generated DTS regulator or enable/reset modeling
+    confidence_rules:
+      low: Failure appears early but no waveform is available.
+      medium: DTS/Kconfig pass and log shows bus error during first transaction.
+      high: Scope capture shows bus access before stable rail and delay fixes it.
+    verify:
+      - Capture VDD, enable/reset, SDA/SCL or SPI lines from reset to first read.
+    fix:
+      - Add regulator modeling, correct enable/reset sequence, or increase delay.
+    regression_hint:
+      - Preserve waveform export and the verified delay patch.
+  - id: zephyr_sensor_missing_startup_delay
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - Probe fails immediately after power enable.
+      - Adding a delay before sensor init makes the failure disappear.
+    required_evidence:
+      - generated DTS regulator node
+      - startup-delay-us value or absence
+      - repeated boot result with delay sweep
+    confidence_rules:
+      low: Sensor has an enable rail but timing is unmeasured.
+      medium: Delay sweep changes failure rate.
+      high: Measured rail timing plus minimal delay fixes repeated boots.
+    verify:
+      - Sweep startup-delay-us and correlate with rail rise and first transaction.
+    fix:
+      - Set startup-delay-us to the measured stable value with margin.
+    regression_hint:
+      - Keep the delay sweep table and fixed DTS snippet.
+  - id: zephyr_sensor_irq_gpio_misconfigured
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - Polling works but trigger count remains zero.
+      - GPIO interrupt fires constantly or never fires.
+    required_evidence:
+      - generated DTS irq-gpios or interrupt-gpios property
+      - schematic interrupt pin and polarity
+      - polling-mode result
+    confidence_rules:
+      low: Trigger mode fails but polling was not tested.
+      medium: Polling works and IRQ pin/polarity differs from schematic.
+      high: Correcting GPIO pin or polarity restores trigger events.
+    verify:
+      - Run polling mode first, then scope or log the interrupt pin.
+    fix:
+      - Correct GPIO controller, pin, polarity, and trigger mode config.
+    regression_hint:
+      - Preserve polling and trigger logs plus fixed DTS.
+  - id: zephyr_sensor_whoami_nack
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - WHO_AM_I read reports NACK or timeout.
+      - Driver fails during reboot or identity phase.
+    required_evidence:
+      - serial log with WHO_AM_I or identity read failure
+      - decoded bus trace of the identity transaction
+      - DTS reg and compatible
+    confidence_rules:
+      low: Log mentions identity failure only.
+      medium: Capture shows NACK at the identity transaction.
+      high: Address, power, or bus fix changes NACK to ACK and valid data.
+    verify:
+      - Decode address phase and identity register transaction.
+    fix:
+      - Fix address, power timing, pull-ups, or bus mode based on capture.
+    regression_hint:
+      - Preserve decoded CSV showing before/after identity read.
+  - id: zephyr_sensor_spi_mode_mismatch
+    domain: zephyr_sensor_bringup
+    symptoms:
+      - SPI sensor returns 0xff, 0x00, or inconsistent identity.
+      - I2C path is not used and SPI probe fails.
+    required_evidence:
+      - generated SPI sensor node
+      - spi-max-frequency and SPI mode properties
+      - logic analyzer capture of CS, SCK, MOSI, MISO
+    confidence_rules:
+      low: SPI identity is wrong but capture is missing.
+      medium: Capture shows wrong CPOL/CPHA or chip-select timing.
+      high: Correcting mode or CS timing returns valid identity data.
+    verify:
+      - Decode SPI transaction and compare mode/frequency with datasheet.
+    fix:
+      - Correct SPI mode, chip-select polarity/timing, or max frequency.
+    regression_hint:
+      - Preserve SPI capture and fixed node properties.

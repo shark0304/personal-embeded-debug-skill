@@ -1,0 +1,54 @@
+schema_version: 1
+name: debug_packet
+description: Reproducible evidence packet for an embedded debug case.
+fields:
+  case_id:
+    type: string
+    description: Stable identifier for this debug case.
+  platform:
+    type: string
+    description: Target platform such as zephyr, esp-idf, cortex-m, freertos, embedded-linux, mcuboot, or tinyml.
+  toolchain:
+    type: string
+    description: Compiler, SDK/BSP, kernel, RTOS, or package version information.
+  build_system:
+    type: string
+    description: Build system or orchestrator such as west, idf.py, CMake, PlatformIO, Yocto, or Buildroot.
+  artifacts:
+    type: object
+    description: Paths to collected debug artifacts.
+    allowed_keys:
+      build_log: Build transcript or CI log.
+      elf: ELF image matching the running binary.
+      map: Linker map matching the running binary.
+      serial_log: UART/RTT/monitor log from the failure.
+      fault_registers: Cortex-M SCB/fault register dump.
+      rtos_snapshot: Task/thread/heap/wait graph snapshot.
+      dts: DTS, DTSI, overlay, or generated devicetree dump.
+      kconfig: .config, autoconf.h, prj.conf, sdkconfig, or defconfig.
+      scope_trace: Oscilloscope waveform export.
+      logic_trace: Logic analyzer export.
+      dmesg: Linux kernel log.
+      dtb: Device tree blob actually booted.
+      boot_log: Full log from reset through failure.
+  symptoms:
+    type: list
+    description: User-visible symptoms, expected behavior, actual behavior, and trigger.
+  reproducibility:
+    type: string
+    description: Always, intermittent, load-dependent, temperature-dependent, board-specific, or unknown.
+  last_known_good:
+    type: string
+    description: Known good commit, firmware version, board revision, SDK version, or test condition.
+  measurements:
+    type: list
+    description: Timing, current, voltage, waveform, latency, throughput, or memory measurements.
+  constraints:
+    type: list
+    description: Safety, hardware, timing, recovery, tool, or production constraints.
+  missing_evidence:
+    type: list
+    description: Critical missing artifacts required before strong root-cause claims.
+  analysis_status:
+    type: string
+    description: new, incomplete, triaged, verified, fixed, regressed, or blocked.

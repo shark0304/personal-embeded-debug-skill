@@ -1,0 +1,14 @@
+case_id: cortexm_real_hardfault_stm32
+platform: cortex-m
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  fault_registers: [fault_scb_dump.txt]
+  serial_log: [serial.log]
+symptoms: ["STM32 HardFault after DMA peripheral enable"]
+reproducibility: load-dependent
+last_known_good: polling path before DMA enable
+measurements: []
+constraints: ["sanitized sample without real ELF/MAP"]
+missing_evidence: ["ELF", "MAP", "stacked PC symbolication", "DMA buffer address"]
+analysis_status: incomplete

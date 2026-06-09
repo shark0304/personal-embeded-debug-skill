@@ -1,0 +1,17 @@
+patterns:
+  - id: dma.cacheable_rx_stale
+    domain: dma_cache
+    symptoms: ["DMA RX stale data", "polling works", "DCache enabled"]
+    required_evidence: ["buffer address", "size", "cache line", "cacheability", "direction"]
+    confidence_rules: "Medium when buffer is cacheable; high after invalidate/nocache experiment changes outcome."
+    verify: "Run dma_buffer_check.py and repeat with aligned nocache buffer."
+    fix: "Align buffer, invalidate after RX completion, or move to nocache DMA region."
+    regression_hint: "DMA loopback packet with cache enabled."
+  - id: dma.descriptor_payload_split
+    domain: dma_cache
+    symptoms: ["descriptor looks valid", "payload corrupt", "ring DMA failure"]
+    required_evidence: ["descriptor region", "payload region", "ownership protocol"]
+    confidence_rules: "High only when descriptor and payload cacheability/visibility differ."
+    verify: "Check both descriptor and payload buffers with dma_buffer_check.py."
+    fix: "Place all DMA-owned data in coherent memory or maintain both regions."
+    regression_hint: "Record descriptor and payload addresses in debug packet."

@@ -1,0 +1,10 @@
+board_name: generic_cortexm
+vendor: generic
+arch: cortex-m
+toolchain: arm-none-eabi-gcc
+debug_probe: J-Link or CMSIS-DAP
+build_system: cmake
+common_artifacts: [elf, map, serial_log, fault_registers, rtos_snapshot]
+common_failure_modes: [hardfault, stack_overflow, dma_cache, nvic_priority, bootloader_vtor]
+recommended_runbooks: [cortexm_hardfault_runbook, dma_cache_corruption_runbook, freertos_deadlock_runbook]
+recommended_scripts: [fault_analyzer.py, symbolicate_addresses.py, dma_buffer_check.py, nvic_priority_check.py]

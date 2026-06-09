@@ -1,0 +1,17 @@
+patterns:
+  - id: field.watchdog_reset
+    domain: field_diagnostics
+    symptoms: ["watchdog reset", "last progress stale", "uptime reset"]
+    required_evidence: ["reset_reason", "last logs", "uptime", "firmware_version"]
+    confidence_rules: "High when reset reason reports watchdog and last progress marker is stale."
+    verify: "Run analyze_reboot_reason.py and inspect last progress markers."
+    fix: "Move watchdog feed to verified progress point and remove long blocking path."
+    regression_hint: "Store field log and expected watchdog classification."
+  - id: field.brownout_reset
+    domain: field_diagnostics
+    symptoms: ["brownout", "power drop", "radio burst reset"]
+    required_evidence: ["reset_reason", "voltage metrics", "radio state"]
+    confidence_rules: "High when brownout reset reason aligns with voltage or radio burst telemetry."
+    verify: "Run analyze_device_metrics.py and correlate voltage with reset time."
+    fix: "Fix power path, bulk capacitance, radio burst scheduling, or brownout threshold policy."
+    regression_hint: "Preserve voltage/current metrics and reset reason."

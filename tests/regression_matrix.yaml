@@ -1,0 +1,34 @@
+cases:
+  - id: cortexm_precise_bus_fault
+    path: tests/golden_packets/cortexm_precise_bus_fault
+    domain: cortexm
+  - id: zephyr_missing_i2c_alias
+    path: tests/golden_packets/zephyr_missing_i2c_alias
+    domain: zephyr
+  - id: linux_probe_defer_regulator
+    path: tests/golden_packets/linux_probe_defer_regulator
+    domain: embedded_linux
+  - id: cortexm_real_hardfault_stm32
+    path: tests/golden_packets/cortexm_real_hardfault_stm32
+    domain: cortexm
+  - id: zephyr_real_i2c_sensor_probe_fail
+    path: tests/golden_packets/zephyr_real_i2c_sensor_probe_fail
+    domain: zephyr
+  - id: espidf_real_wdt_or_guru_meditation
+    path: tests/golden_packets/espidf_real_wdt_or_guru_meditation
+    domain: espidf
+  - id: linux_real_probe_defer
+    path: tests/golden_packets/linux_real_probe_defer
+    domain: embedded_linux
+  - id: freertos_real_priority_inversion
+    path: tests/golden_packets/freertos_real_priority_inversion
+    domain: freertos
+  - id: dma_real_cache_corruption
+    path: tests/golden_packets/dma_real_cache_corruption
+    domain: dma_cache
+  - id: tinyml_real_memory_overflow
+    path: tests/golden_packets/tinyml_real_memory_overflow
+    domain: tinyml
+  - id: zephyr_st_imu_bringup_real
+    path: tests/golden_packets/zephyr_st_imu_bringup_real
+    domain: zephyr

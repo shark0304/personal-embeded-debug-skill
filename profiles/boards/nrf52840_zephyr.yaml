@@ -1,0 +1,10 @@
+board_name: nrf52840_zephyr
+vendor: Nordic Semiconductor
+arch: cortex-m4
+toolchain: zephyr-sdk
+debug_probe: J-Link
+build_system: west
+common_artifacts: [build_log, zephyr.dts, autoconf.h, elf, map, serial_log]
+common_failure_modes: [device_not_ready, overlay_not_applied, ble_timing, stack_overflow, mcuboot_partition]
+recommended_runbooks: [zephyr_dts_kconfig_runbook, freertos_deadlock_runbook, ota_mcuboot_runbook]
+recommended_scripts: [dts_probe_check.py, kconfig_check.py, rtos_snapshot_check.py]

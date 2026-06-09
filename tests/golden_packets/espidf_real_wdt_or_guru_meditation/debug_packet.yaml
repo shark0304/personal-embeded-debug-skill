@@ -1,0 +1,14 @@
+case_id: espidf_real_wdt_or_guru_meditation
+platform: esp-idf
+toolchain: xtensa-esp-elf
+build_system: idf.py
+artifacts:
+  serial_log: [panic.log]
+  kconfig: [sdkconfig]
+symptoms: ["Task watchdog or Guru Meditation during camera inference"]
+reproducibility: load-dependent
+last_known_good: before camera pipeline integration
+measurements: []
+constraints: ["sanitized sample without ELF"]
+missing_evidence: ["ELF", "decoded backtrace", "heap capabilities snapshot"]
+analysis_status: incomplete

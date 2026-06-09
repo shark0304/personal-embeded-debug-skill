@@ -1,0 +1,32 @@
+{
+  "profile_version": 1,
+  "engineer": {
+    "name": "",
+    "preferred_language": "zh-CN",
+    "response_style": "concise_evidence_first"
+  },
+  "platforms": {
+    "mcu": ["STM32", "ESP32", "Nordic nRF"],
+    "rtos": ["FreeRTOS", "Zephyr"],
+    "linux_soc": ["i.MX", "Rockchip"],
+    "tinyml_runtime": ["TensorFlow Lite Micro", "CMSIS-NN"]
+  },
+  "tools": {
+    "debug_probes": ["J-Link", "ST-LINK", "CMSIS-DAP"],
+    "gdb_servers": ["OpenOCD", "J-Link GDB Server"],
+    "logic_analyzer": "",
+    "oscilloscope": "",
+    "power_analyzer": "",
+    "build_systems": ["CMake", "west", "ESP-IDF", "PlatformIO", "Yocto", "Buildroot"]
+  },
+  "preferences": {
+    "default_artifacts_to_request": ["logs", "registers", "map_or_elf", "dts_or_config"],
+    "prefer_minimal_patches": true,
+    "prefer_reversible_debug_steps": true,
+    "warn_before_irreversible_actions": true
+  },
+  "safety_policy": {
+    "require_confirmation_for": ["efuse", "option_bytes", "secure_boot_keys", "flash_encryption", "anti_rollback", "bootloader_erase", "devmem_write", "voltage_or_clock_overlimit"],
+    "require_recovery_path_before_provisioning": true
+  }
+}

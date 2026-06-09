@@ -1,0 +1,20 @@
+case_id: cortexm_precise_bus_fault
+platform: cortex-m
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  fault_registers:
+    - fault_registers.txt
+  elf:
+    - firmware.elf
+  map:
+    - firmware.map
+symptoms:
+  - HardFault after peripheral enable.
+reproducibility: always
+last_known_good: before peripheral init change
+measurements: []
+constraints: []
+missing_evidence:
+  - stacked frame symbolication
+analysis_status: triaged
