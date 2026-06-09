@@ -1,5 +1,7 @@
 # Advanced Embedded Debug Workbench
 
+Repository: `personal-embeded-debug-skill`
+
 Evidence-first Codex skill for embedded engineers debugging Cortex-M, RTOS,
 Zephyr sensors, ESP-IDF, embedded Linux bring-up, DMA/cache coherency, boot/OTA,
 low power, datasheets/registers, and TinyML deployment.
