@@ -1,0 +1,35 @@
+case_id: rtos_priority_inversion_public_case
+source:
+  type: public_case_study
+  url: https://en.wikipedia.org/wiki/Priority_inversion#Mars_Pathfinder
+  title: Priority inversion public case study
+  date: unknown
+  license_or_terms_note: Public encyclopedia summary; retain URL and avoid copying narrative text.
+platform: RTOS
+symptoms:
+  - High priority task misses timing while lower priority work holds a shared resource.
+  - Medium priority work can extend the blocking interval.
+logs:
+  - high priority task blocked on shared resource
+  - lower priority owner holds mutex
+evidence_present:
+  - public source URL
+  - canonical priority inversion failure shape
+  - mitigation concept involving priority inheritance
+evidence_missing:
+  - target-specific task snapshot
+  - scheduler timeline
+  - mutex ownership trace
+candidate_root_causes:
+  - Shared resource is protected without effective priority inheritance
+  - Long low-priority critical section blocks a high-priority task
+verification_steps:
+  - Capture task states, priorities, mutex owner, and waiters during the failure window.
+  - Enable RTOS trace hooks to confirm the blocking chain.
+  - Reduce critical section or enable priority inheritance and compare deadline misses.
+outcome: Reviewed as a reusable RTOS failure archetype, not a project-specific confirmed root cause.
+review:
+  review_status: reviewed
+  promote_to_pattern: false
+  promote_to_golden_packet: false
+  reviewer_notes: Useful for intake prompts; do not promote without a concrete embedded project packet.

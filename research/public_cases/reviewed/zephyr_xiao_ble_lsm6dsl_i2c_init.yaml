@@ -1,0 +1,37 @@
+case_id: zephyr_xiao_ble_lsm6dsl_i2c_init
+source:
+  type: github_discussion
+  url: https://github.com/zephyrproject-rtos/zephyr/discussions/56042
+  title: XIAO BLE Sense LSM6DSL/LSM6DS3 sensor initialization failure
+  date: unknown
+  license_or_terms_note: Public GitHub discussion; retain URL and summarize in our own words.
+platform: Zephyr
+symptoms:
+  - ST IMU sample fails during sensor initialization on XIAO BLE Sense style hardware.
+  - Logs resemble I2C line error followed by LSM6DSL initialization failure.
+logs:
+  - i2c_nrfx_twim error signature
+  - LSM6DSL failed to initialize chip
+evidence_present:
+  - public source URL
+  - board and sensor family
+  - failure log signature
+  - current Zephyr DTS models the sensor node and regulator startup delay
+evidence_missing:
+  - logic analyzer capture of SDA/SCL
+  - scope trace of IMU rail and enable timing
+  - exact failing checkout and board revision
+candidate_root_causes:
+  - IMU power rail or enable timing not stable before the first I2C transaction
+  - I2C address, pull-up, or bus electrical issue
+  - DTS/Kconfig mismatch in older local checkout
+verification_steps:
+  - Compare generated zephyr.dts and .config from the failing checkout.
+  - Capture VDD, enable, SDA, and SCL from reset through first sensor register access.
+  - Sweep startup-delay-us and preserve before/after logs plus waveforms.
+outcome: Reviewed as a candidate Zephyr sensor bring-up pattern; not hardware-confirmed from the public source alone.
+review:
+  review_status: reviewed
+  promote_to_pattern: true
+  promote_to_golden_packet: false
+  reviewer_notes: Keep this as candidate evidence until waveform and exact checkout evidence exist.

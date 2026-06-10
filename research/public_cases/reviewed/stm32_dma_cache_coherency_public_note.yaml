@@ -1,0 +1,36 @@
+case_id: stm32_dma_cache_coherency_public_note
+source:
+  type: vendor_kb
+  url: https://community.st.com/t5/stm32-mcus/how-to-maintain-cpu-data-cache-coherence-for-dma-buffers-on/ta-p/95746
+  title: STM32 DMA buffer cache coherency guidance
+  date: unknown
+  license_or_terms_note: Public vendor knowledge-base article; summarize principles and retain URL.
+platform: STM32H7 / Cortex-M
+symptoms:
+  - DMA RX or TX data appears stale or corrupted when D-cache is enabled.
+  - Disabling D-cache or moving buffers changes the failure behavior.
+logs:
+  - crc mismatch with dcache enabled
+  - corruption disappears after cache maintenance experiment
+evidence_present:
+  - public vendor guidance URL
+  - known cacheable-memory DMA hazard class
+  - mitigation shape using clean/invalidate and cache-line alignment
+evidence_missing:
+  - project-specific map file
+  - DMA buffer addresses and memory region attributes
+  - before/after stress result from target firmware
+candidate_root_causes:
+  - DMA buffers are placed in cacheable memory without correct clean/invalidate maintenance
+  - DMA buffer address or length is not cache-line aligned
+  - MPU or linker section places descriptors in an unintended region
+verification_steps:
+  - Check buffer address, length, cache-line size, and memory region attributes.
+  - Clean TX buffers before DMA ownership transfer and invalidate RX buffers after DMA completion.
+  - Repeat stress test with counters for stale data or CRC mismatch.
+outcome: Reviewed as a reusable DMA/cache candidate pattern; project-specific verification is still required.
+review:
+  review_status: reviewed
+  promote_to_pattern: true
+  promote_to_golden_packet: false
+  reviewer_notes: Good candidate for failure pattern, but not a standalone golden packet without project artifacts.

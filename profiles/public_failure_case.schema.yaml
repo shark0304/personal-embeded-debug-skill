@@ -1,0 +1,103 @@
+title: Public Failure Case
+type: object
+description: Structured, reviewed summary of a public embedded debugging case.
+required:
+  - case_id
+  - source
+  - platform
+  - symptoms
+  - evidence_present
+  - evidence_missing
+  - candidate_root_causes
+  - verification_steps
+  - outcome
+  - review
+properties:
+  case_id:
+    type: string
+    description: Stable local identifier for the public case summary.
+  source:
+    type: object
+    required:
+      - type
+      - url
+      - title
+      - date
+      - license_or_terms_note
+    properties:
+      type:
+        type: string
+        description: Source category, such as github_issue, github_discussion, stackexchange_question, forum, vendor_kb, or paper.
+      url:
+        type: string
+        description: Canonical public URL. Keep the URL instead of copying long source text.
+      title:
+        type: string
+        description: Source title or short human-readable label.
+      date:
+        type: string
+        description: Source publication, update, or access date. Use unknown when not available.
+      license_or_terms_note:
+        type: string
+        description: Brief note about source terms, license, or reuse constraints.
+  platform:
+    type: string
+    description: Platform or stack, for example Zephyr, STM32H7, FreeRTOS, ESP-IDF, or embedded Linux.
+  symptoms:
+    type: array
+    items:
+      type: string
+    description: Short symptom bullets in our own words.
+  logs:
+    type: array
+    items:
+      type: string
+    description: Very short log excerpts or paraphrased log signatures. Avoid copying long forum text.
+  evidence_present:
+    type: array
+    items:
+      type: string
+    description: Evidence present in the public source or manually curated summary.
+  evidence_missing:
+    type: array
+    items:
+      type: string
+    description: Evidence still missing before strong root-cause claims.
+  candidate_root_causes:
+    type: array
+    items:
+      type: string
+    description: Candidate causes only; public forum content does not automatically confirm root cause.
+  verification_steps:
+    type: array
+    items:
+      type: string
+    description: Experiments or measurements needed to confirm or reject candidates.
+  outcome:
+    type: string
+    description: Observed or reported outcome, including uncertainty.
+  review:
+    type: object
+    required:
+      - review_status
+      - promote_to_pattern
+      - promote_to_golden_packet
+      - reviewer_notes
+    properties:
+      review_status:
+        type: string
+        enum:
+          - raw
+          - extracted
+          - reviewed
+          - rejected
+        description: Human review status. Promotion scripts require reviewed.
+      promote_to_pattern:
+        type: boolean
+        description: Whether this case is approved to become a failure pattern.
+      promote_to_golden_packet:
+        type: boolean
+        description: Whether this case is approved to become a golden packet.
+      reviewer_notes:
+        type: string
+        description: Human notes, confidence, and limitations.

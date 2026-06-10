@@ -69,6 +69,7 @@ python scripts/analyze/analyze_i2c_logic_trace.py --trace logic_trace.csv
 - `profiles/`: board, project, packet, and measurement schemas.
 - `assets/templates/`: capture plans and instrumentation templates.
 - `tests/golden_packets/`: regression-ready debug packets and expected reports.
+- `research/public_cases/`: raw/extracted/reviewed public case ingestion pipeline.
 
 ## Validation
 
