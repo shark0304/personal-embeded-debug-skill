@@ -1,0 +1,41 @@
+{
+  "hypotheses": [
+    {
+      "hypothesis_id": "H1",
+      "root_cause": "The camera sensor node references an analog supply that is missing or not resolved in the board device tree.",
+      "confidence": "high",
+      "evidence_for": [
+        "dmesg.log shows repeated -EPROBE_DEFER for the camera sensor",
+        "rk3588-board.dts contains a camera node without avdd-supply",
+        "Adding a regulator-fixed node and avdd-supply phandle makes probe succeed in the sanitized trial"
+      ],
+      "evidence_against": [
+        "The I2C adapter is present before the sensor probe",
+        "Kernel config includes regulator and V4L2 sensor support"
+      ],
+      "missing_evidence": [
+        "compiled dtb for exact runtime check"
+      ],
+      "verification_step": "Decompile the runtime DTB, confirm avdd-supply resolves to a regulator, and reboot with dynamic debug enabled for the sensor driver.",
+      "expected_observation": "The defer loop disappears and the sensor driver logs successful regulator acquisition before probe completion.",
+      "fix_if_confirmed": "Add the correct regulator-fixed node and avdd-supply phandle to the board DTS, then preserve the decompiled DTB and dmesg."
+    },
+    {
+      "hypothesis_id": "H2",
+      "root_cause": "The camera reset GPIO polarity is incorrect and holds the sensor in reset.",
+      "confidence": "low",
+      "evidence_for": [
+        "Reset GPIO errors can prevent camera probe"
+      ],
+      "evidence_against": [
+        "The logged failure is a deferred regulator branch rather than a chip ID read failure"
+      ],
+      "missing_evidence": [
+        "reset GPIO waveform"
+      ],
+      "verification_step": "Trace regulator_get and reset GPIO transitions with dynamic debug and a scope capture.",
+      "expected_observation": "A reset polarity issue would show regulator acquisition succeeds but chip ID read fails or reset remains asserted.",
+      "fix_if_confirmed": "Correct reset-gpios polarity and preserve scope evidence."
+    }
+  ]
+}

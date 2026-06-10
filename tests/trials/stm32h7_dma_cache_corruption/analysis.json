@@ -1,0 +1,42 @@
+{
+  "hypotheses": [
+    {
+      "hypothesis_id": "H1",
+      "root_cause": "DMA RX buffers are in cacheable memory and are consumed without cache-line aligned invalidation after DMA completion.",
+      "confidence": "high",
+      "evidence_for": [
+        "serial.log reports corruption only when D-cache is enabled",
+        "dma_snapshot.yaml shows RX buffer address 0x24001204, which is not 32-byte aligned",
+        "The invalidate-on-RX experiment removes the corrupted payloads"
+      ],
+      "evidence_against": [
+        "No bus fault or hard fault appears in the packet",
+        "The last known good build differs only by cache behavior"
+      ],
+      "missing_evidence": [
+        "elf for exact symbol cross-check"
+      ],
+      "verification_step": "Move RX buffers to a non-cacheable region or align to 32 bytes and invalidate the full cache-line span after DMA completion, then run the RX stress loop.",
+      "expected_observation": "The CRC mismatch counter remains at zero with D-cache enabled.",
+      "fix_if_confirmed": "Align DMA buffers and descriptors to cache-line size, invalidate RX spans after DMA completion, and clean TX spans before DMA ownership transfer."
+    },
+    {
+      "hypothesis_id": "H2",
+      "root_cause": "The peripheral is writing outside the intended DMA buffer because of a descriptor length error.",
+      "confidence": "low",
+      "evidence_for": [
+        "DMA corruption can also come from descriptor length mistakes"
+      ],
+      "evidence_against": [
+        "The same descriptor configuration passes when D-cache is disabled",
+        "The cache maintenance experiment changes the outcome"
+      ],
+      "missing_evidence": [
+        "full descriptor ring dump"
+      ],
+      "verification_step": "Dump descriptor base, length, ownership, and next pointers before and after RX completion.",
+      "expected_observation": "A descriptor bug would show an invalid length or pointer independent of cache maintenance.",
+      "fix_if_confirmed": "Correct descriptor sizing and ownership sequencing."
+    }
+  ]
+}

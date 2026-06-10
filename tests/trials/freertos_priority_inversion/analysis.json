@@ -1,0 +1,42 @@
+{
+  "hypotheses": [
+    {
+      "hypothesis_id": "H1",
+      "root_cause": "A low priority logger task holds the SPI mutex while a high priority control task blocks behind it and a medium priority task consumes CPU.",
+      "confidence": "high",
+      "evidence_for": [
+        "rtos_snapshot.yaml shows control blocked on spi_mutex",
+        "logger owns spi_mutex at low priority",
+        "telemetry runs at medium priority during the missed-deadline window",
+        "Shortening the logger SPI critical section removes deadline misses"
+      ],
+      "evidence_against": [
+        "No heap exhaustion or stack overflow is present in the snapshot"
+      ],
+      "missing_evidence": [
+        "trace_timeline for exact blocking duration"
+      ],
+      "verification_step": "Enable FreeRTOS trace hooks or capture a scheduling timeline while the SPI mutex is held.",
+      "expected_observation": "The high priority task remains blocked until the low priority owner releases the mutex, while the medium task preempts the owner.",
+      "fix_if_confirmed": "Use a FreeRTOS mutex with priority inheritance, shorten the mutex hold time, and move long SPI logging out of the low priority path."
+    },
+    {
+      "hypothesis_id": "H2",
+      "root_cause": "The high priority control task misses deadlines because its stack is too small.",
+      "confidence": "low",
+      "evidence_for": [
+        "Deadline misses can be caused by stack corruption"
+      ],
+      "evidence_against": [
+        "Snapshot high-water marks have margin",
+        "The mutex-hold experiment changes the deadline miss rate"
+      ],
+      "missing_evidence": [
+        "stack sentinel log"
+      ],
+      "verification_step": "Enable stack overflow hooks and log high-water marks across the failure window.",
+      "expected_observation": "A stack issue would show low margin or overflow independent of mutex timing.",
+      "fix_if_confirmed": "Increase the specific task stack and preserve high-water evidence."
+    }
+  ]
+}

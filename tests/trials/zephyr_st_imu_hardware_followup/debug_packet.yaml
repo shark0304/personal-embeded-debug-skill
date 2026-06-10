@@ -1,0 +1,28 @@
+case_id: zephyr_st_imu_hardware_followup
+created_utc: '2026-06-10T00:00:00+00:00'
+project_root: tests/trials/zephyr_st_imu_hardware_followup
+platform: zephyr
+board: xiao_ble/nrf52840/sense
+shield: unknown
+toolchain: zephyr
+build_system: west
+artifacts:
+  build_log:
+    - build.log
+  serial_log:
+    - serial.log
+  kconfig:
+    - .config
+  dts:
+    - zephyr.dts
+symptoms:
+  - LSM6DSL/LSM6DS3 probe fails during first I2C transaction.
+reproducibility: simulated/sanitized follow-up from public failure shape; no hardware rerun in this trial
+last_known_good: unknown
+measurements: []
+constraints:
+  - No real logic analyzer or power rail capture is available.
+missing_evidence:
+  - logic_trace
+  - scope_trace
+analysis_status: incomplete

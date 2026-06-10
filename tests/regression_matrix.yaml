@@ -32,3 +32,12 @@ cases:
   - id: zephyr_st_imu_bringup_real
     path: tests/golden_packets/zephyr_st_imu_bringup_real
     domain: zephyr
+  - id: trial_stm32h7_dma_cache_corruption
+    path: tests/golden_packets/trial_stm32h7_dma_cache_corruption
+    domain: dma_cache
+  - id: trial_freertos_priority_inversion
+    path: tests/golden_packets/trial_freertos_priority_inversion
+    domain: freertos
+  - id: trial_rk3588_linux_probe_defer
+    path: tests/golden_packets/trial_rk3588_linux_probe_defer
+    domain: embedded_linux

@@ -1,0 +1,4 @@
+time,event,value
+0.000,rx_dma_complete,buffer=0x24001204
+0.010,cache_invalidate,span=0x24001200..0x24001820
+10.000,crc_mismatch,0

@@ -1,0 +1,26 @@
+case_id: esp32s3_guru_meditation
+created_utc: '2026-06-10T00:00:00+00:00'
+project_root: tests/trials/esp32s3_guru_meditation
+platform: esp-idf
+board: esp32s3_devkitc
+shield: unknown
+toolchain: xtensa-esp32s3-elf
+build_system: idf.py
+artifacts:
+  build_log:
+    - build.log
+  serial_log:
+    - serial.log
+  kconfig:
+    - sdkconfig
+symptoms:
+  - Guru Meditation LoadProhibited occurs after Wi-Fi reconnect.
+reproducibility: sanitized ESP-IDF panic log
+last_known_good: reconnect callback disabled
+measurements: []
+constraints:
+  - ELF is missing, so the backtrace cannot be symbolicated in this trial.
+missing_evidence:
+  - elf
+  - map
+analysis_status: incomplete

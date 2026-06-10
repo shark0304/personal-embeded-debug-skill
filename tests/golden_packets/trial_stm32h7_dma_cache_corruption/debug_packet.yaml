@@ -1,0 +1,28 @@
+case_id: stm32h7_dma_cache_corruption
+created_utc: '2026-06-10T00:00:00+00:00'
+project_root: tests/trials/stm32h7_dma_cache_corruption
+platform: cortex-m
+board: stm32h743_custom
+shield: unknown
+toolchain: arm-none-eabi-gcc
+build_system: cmake
+artifacts:
+  serial_log:
+    - serial.log
+  map:
+    - firmware.map
+  scope_trace:
+    - dma_capture.csv
+  dma_snapshot:
+    - dma_snapshot.yaml
+symptoms:
+  - Ethernet RX payload intermittently corrupts only with D-cache enabled.
+reproducibility: sanitized real-style lab packet
+last_known_good: D-cache disabled build
+measurements:
+  - Corruption disappears after invalidate-on-RX experiment.
+constraints:
+  - No ELF is included; PC symbolication is outside this packet.
+missing_evidence:
+  - elf
+analysis_status: analyzed

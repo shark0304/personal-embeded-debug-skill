@@ -1,0 +1,24 @@
+case_id: freertos_priority_inversion
+created_utc: '2026-06-10T00:00:00+00:00'
+project_root: tests/trials/freertos_priority_inversion
+platform: freertos
+board: generic_cortexm
+shield: unknown
+toolchain: arm-none-eabi-gcc
+build_system: make
+artifacts:
+  serial_log:
+    - serial.log
+  rtos_snapshot:
+    - rtos_snapshot.yaml
+symptoms:
+  - High priority control task misses deadlines while a medium priority telemetry task runs.
+reproducibility: sanitized real-style RTOS snapshot
+last_known_good: SPI transaction moved out of low priority logging task
+measurements:
+  - Deadline misses disappear after mutex hold time is shortened.
+constraints:
+  - No hardware trace is included.
+missing_evidence:
+  - trace_timeline
+analysis_status: analyzed

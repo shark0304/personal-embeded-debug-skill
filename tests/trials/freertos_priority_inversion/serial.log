@@ -1,0 +1,4 @@
+[12.000] control: deadline_miss=7 wait=spi_mutex
+[12.010] logger: owns spi_mutex hold_ms=48 prio=1
+[12.020] telemetry: running prio=3
+[13.000] control: deadline_miss=0 after logger critical section reduced

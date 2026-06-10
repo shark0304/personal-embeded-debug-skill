@@ -1,0 +1,44 @@
+{
+  "hypotheses": [
+    {
+      "hypothesis_id": "H1",
+      "root_cause": "A reconnect callback dereferences a null or stale context pointer after Wi-Fi reconnect.",
+      "confidence": "medium",
+      "evidence_for": [
+        "serial.log shows LoadProhibited with EXCVADDR 0x00000000",
+        "The failure appears after Wi-Fi reconnect",
+        "Disabling the reconnect callback is the last known good change"
+      ],
+      "evidence_against": [
+        "No ELF is available, so the PC/backtrace is not symbolicated",
+        "Heap poisoning output is not included"
+      ],
+      "missing_evidence": [
+        "elf",
+        "map",
+        "full panic dump with symbols"
+      ],
+      "verification_step": "Rebuild with matching ELF, run esp_panic_parse.py, symbolicate the backtrace, and add a guard plus lifetime check around the reconnect context.",
+      "expected_observation": "If this branch is correct, symbolication lands inside the reconnect callback and the guard prevents the LoadProhibited panic.",
+      "fix_if_confirmed": "Fix context ownership or null handling in the reconnect callback and add a panic-log regression packet with the matching ELF."
+    },
+    {
+      "hypothesis_id": "H2",
+      "root_cause": "Heap corruption damages the callback context before reconnect.",
+      "confidence": "low",
+      "evidence_for": [
+        "Use-after-free can present as a stale pointer panic"
+      ],
+      "evidence_against": [
+        "No heap poisoning assertion appears in the sanitized log"
+      ],
+      "missing_evidence": [
+        "heap poisoning log",
+        "allocation trace"
+      ],
+      "verification_step": "Enable heap poisoning and allocation tracing around reconnect.",
+      "expected_observation": "A heap issue would produce a poisoning violation or allocation lifetime mismatch before the panic.",
+      "fix_if_confirmed": "Fix ownership and preserve heap trace evidence."
+    }
+  ]
+}

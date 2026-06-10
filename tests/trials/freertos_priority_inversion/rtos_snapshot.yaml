@@ -1,0 +1,21 @@
+tasks:
+  - name: control
+    priority: 5
+    state: blocked
+    blocked_on: spi_mutex
+    stack_high_water: 420
+  - name: telemetry
+    priority: 3
+    state: running
+    stack_high_water: 780
+  - name: logger
+    priority: 1
+    state: ready
+    owns:
+      - spi_mutex
+    stack_high_water: 640
+mutexes:
+  - name: spi_mutex
+    owner: logger
+    waiters:
+      - control

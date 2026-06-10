@@ -1,0 +1,5 @@
+Guru Meditation Error: Core  0 panic'ed (LoadProhibited). Exception was unhandled.
+PC      : 0x42012345
+EXCVADDR: 0x00000000
+Backtrace: 0x42012345:0x3fca1230 0x42005678:0x3fca1250
+wifi: reconnect callback entered

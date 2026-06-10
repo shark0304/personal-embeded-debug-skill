@@ -1,0 +1,9 @@
+&i2c3 {
+	status = "okay";
+	camera@36 {
+		compatible = "ovti,ov5647";
+		reg = <0x36>;
+		reset-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+		/* avdd-supply absent in failing DTS; fixed overlay adds it. */
+	};
+};

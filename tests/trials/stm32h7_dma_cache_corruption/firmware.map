@@ -1,0 +1,2 @@
+.bss.rx_buffers 0x24001204 0x00001800
+.bss.eth_desc   0x24003000 0x00000200

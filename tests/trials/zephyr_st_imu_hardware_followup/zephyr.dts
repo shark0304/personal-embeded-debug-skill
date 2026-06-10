@@ -1,0 +1,12 @@
+&i2c0 {
+	status = "okay";
+	pinctrl-0 = <&i2c0_default>;
+	clock-frequency = <400000>;
+
+	lsm6ds3tr_c: lsm6ds3tr-c@6a {
+		compatible = "st,lsm6dsl";
+		reg = <0x6a>;
+		irq-gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+};

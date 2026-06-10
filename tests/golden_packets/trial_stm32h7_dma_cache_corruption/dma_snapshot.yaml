@@ -1,0 +1,6 @@
+rx_buffer: 0x24001204
+rx_size: 1536
+cache_line: 32
+region_cacheable: true
+dma_direction: rx
+experiment: invalidate_after_dma_completion

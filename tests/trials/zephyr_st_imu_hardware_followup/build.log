@@ -1,0 +1,5 @@
+west build -b xiao_ble/nrf52840/sense samples/sensor/lsm6dsl
+-- Board: xiao_ble/nrf52840/sense
+-- Generated zephyr.dts: build/zephyr/zephyr.dts
+-- Generated .config: build/zephyr/.config
+-- Build completed; sanitized hardware follow-up packet uses preserved runtime failure log.

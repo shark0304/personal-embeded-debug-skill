@@ -1,0 +1,26 @@
+case_id: rk3588_linux_probe_defer
+created_utc: '2026-06-10T00:00:00+00:00'
+project_root: tests/trials/rk3588_linux_probe_defer
+platform: embedded-linux
+board: rk3588_custom_carrier
+shield: unknown
+toolchain: clang
+build_system: kernel
+artifacts:
+  dmesg:
+    - dmesg.log
+  dts:
+    - rk3588-board.dts
+  kconfig:
+    - kernel.config
+symptoms:
+  - Camera sensor driver repeatedly returns probe defer during boot.
+reproducibility: sanitized Linux BSP bring-up packet
+last_known_good: regulator-fixed node added for avdd-supply
+measurements:
+  - Probe succeeds after adding regulator phandle in DTS overlay.
+constraints:
+  - Full DTB and driver source are not included.
+missing_evidence:
+  - dtb
+analysis_status: analyzed

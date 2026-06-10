@@ -18,6 +18,7 @@ UNSUPPORTED_CERTAINTY = [
 def main() -> None:
     parser = argparse.ArgumentParser(description="Score an embedded debug report against the v3 report contract.")
     parser.add_argument("--report", required=True, help="Markdown debug report.")
+    parser.add_argument("--out", help="Optional output JSON path. Defaults to stdout only.")
     args = parser.parse_args()
 
     text = Path(args.report).read_text(encoding="utf-8", errors="replace")
@@ -47,7 +48,10 @@ def main() -> None:
 
     ok = score >= 80 and not certainty_hits
     output = {"score": score, "ok": ok, "failed_rules": failed_rules}
-    print(json.dumps(output, indent=2, sort_keys=True))
+    text = json.dumps(output, indent=2, sort_keys=True)
+    if args.out:
+        Path(args.out).write_text(text + "\n", encoding="utf-8")
+    print(text)
     if not ok:
         raise SystemExit(1)
 

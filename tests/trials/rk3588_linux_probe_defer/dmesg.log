@@ -1,0 +1,5 @@
+[    2.410000] rkisp1 ff910000.isp: registered
+[    3.120000] ov5647 3-0036: supply avdd not found, using dummy regulator
+[    3.121000] ov5647 3-0036: probe defer waiting for regulator
+[    6.401000] ov5647 3-0036: probe defer waiting for regulator
+[   10.001000] ov5647 3-0036: probe ok after avdd-supply phandle added

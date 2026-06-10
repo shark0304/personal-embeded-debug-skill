@@ -1,0 +1,3 @@
+[00:00:03.210] eth_rx: crc_mismatch=17 dcache=on
+[00:00:04.002] eth_rx: retry with SCB_InvalidateDCache_by_Addr after DMA complete
+[00:00:14.002] eth_rx: crc_mismatch=0 dcache=on invalidate=on

@@ -1,0 +1,2 @@
+idf.py build
+Project build complete. Sanitized trial omits ELF and map artifacts.
