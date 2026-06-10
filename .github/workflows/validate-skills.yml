@@ -1,0 +1,59 @@
+name: Validate skills
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: embedded-debug regression
+        run: python scripts/verify/run_skill_regression.py
+
+      - name: embedded-debug smoke tests
+        run: python scripts/smoke_test_tools.py
+
+      - name: embedded-debug evaluation scenarios
+        run: python scripts/validate_evaluation_scenarios.py
+
+      - name: embedded-project-builder help checks
+        run: |
+          python embedded-project-builder/scripts/list_project_recipes.py --help
+          python embedded-project-builder/scripts/create_project_plan.py --help
+          python embedded-project-builder/scripts/validate_project_plan.py --help
+          python embedded-project-builder/scripts/create_project_scaffold.py --help
+          python embedded-project-builder/scripts/validate_project_scaffold.py --help
+
+      - name: embedded-project-builder plan smoke
+        run: |
+          python embedded-project-builder/scripts/create_project_plan.py \
+            --scenario zephyr_st_imu_sensor_node \
+            --project-name imu-node \
+            --board xiao_ble/nrf52840/sense \
+            --out-dir /tmp/imu-node-plan \
+            --overwrite \
+            --json
+          python embedded-project-builder/scripts/validate_project_plan.py \
+            --project-dir /tmp/imu-node-plan
+
+      - name: embedded-project-builder scaffold smoke
+        run: |
+          python embedded-project-builder/scripts/create_project_scaffold.py \
+            --scenario zephyr_st_imu_sensor_node \
+            --project-name imu-node \
+            --board xiao_ble/nrf52840/sense \
+            --out-dir /tmp/imu-node-scaffold \
+            --overwrite \
+            --json
+          python embedded-project-builder/scripts/validate_project_scaffold.py \
+            --project-dir /tmp/imu-node-scaffold

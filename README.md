@@ -21,7 +21,7 @@ The skill is designed as a reproducible debugging workbench:
 This repository now carries two related skills:
 
 - `embedded-project-builder`: the upstream planning skill for 0-to-1 embedded
-  learning and project development. It generates `project_plan.md`,
+  learning and project development. It generates scaffolds, `project_plan.md`,
   `datasheet_reading_note.md`, `driver_bringup_note.md`, and
   `validation_plan.md` for Zephyr sensor nodes, STM32 DMA acquisition, ESP32
   TinyML demos, RK3588 Linux driver/NPU work, and TI C2000 control demos.
@@ -80,6 +80,41 @@ Analyze a logic analyzer CSV:
 python scripts/analyze/analyze_i2c_logic_trace.py --trace logic_trace.csv
 ```
 
+## Project Builder scaffold workflow
+
+Create planning documents only:
+
+```bash
+python embedded-project-builder/scripts/create_project_plan.py \
+  --scenario zephyr_st_imu_sensor_node \
+  --project-name imu-node \
+  --board xiao_ble/nrf52840/sense \
+  --out-dir /tmp/imu-node-plan \
+  --overwrite
+```
+
+Create a minimal project scaffold plus planning docs:
+
+```bash
+python embedded-project-builder/scripts/create_project_scaffold.py \
+  --scenario zephyr_st_imu_sensor_node \
+  --project-name imu-node \
+  --board xiao_ble/nrf52840/sense \
+  --out-dir /tmp/imu-node-scaffold \
+  --overwrite
+```
+
+Validate both outputs:
+
+```bash
+python embedded-project-builder/scripts/validate_project_plan.py --project-dir /tmp/imu-node-plan
+python embedded-project-builder/scripts/validate_project_scaffold.py --project-dir /tmp/imu-node-scaffold
+```
+
+When the scaffold hits a build, flash, sensor probe, runtime, DMA/cache, or
+TinyML validation failure, place evidence in the scaffold `debug/` directory and
+switch to `embedded-debug`.
+
 ## Repository layout
 
 - `embedded-project-builder/`: upper-level project planning skill for learning,
@@ -106,8 +141,9 @@ python scripts/smoke_test_tools.py
 python scripts/validate_evaluation_scenarios.py
 ```
 
-The current v3.1 baseline has 11 golden packets, 24 smoke-tested tools, and 43
-evaluation scenarios.
+Run `python scripts/verify/run_skill_regression.py` to see the current golden
+packet count. The current baseline also smoke-tests the bundled tools and
+validates 43 evaluation scenarios.
 
 ## Boundary
 

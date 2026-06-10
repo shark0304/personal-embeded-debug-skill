@@ -7,19 +7,20 @@ metadata:
 
 # Embedded Project Builder
 
-Use this skill to organize an embedded project before debugging starts. It creates the project route, datasheet notes, bring-up plan, validation criteria, and explicit handoff conditions for `$embedded-debug`.
+Use this skill to organize embedded work before debugging starts. It creates project routes, minimal scaffolds, datasheet notes, bring-up plans, validation criteria, and explicit handoff conditions for `$embedded-debug`.
 
 ## Operating Model
 
 1. Identify the target scenario, board, peripheral/sensor, toolchain, and user experience level.
-2. Pick the closest recipe from `references/project_recipes/`.
-3. Generate or update:
+2. If the user asks for a learning route or planning docs, run `create_project_plan.py`.
+3. If the user asks to "搭项目骨架", "create scaffold", "start a project", or needs files to begin coding, run `create_project_scaffold.py`.
+4. Generate or update:
    - `project_plan.md`
    - `datasheet_reading_note.md`
    - `driver_bringup_note.md`
    - `validation_plan.md`
-4. Keep plans practical: milestone, evidence, test command, expected observation, exit criteria.
-5. When a failure occurs, stop guessing and hand the evidence to `$embedded-debug`.
+5. Keep plans practical: milestone, evidence, test command, expected observation, exit criteria.
+6. When build/runtime validation fails, stop guessing and hand the evidence to `$embedded-debug`.
 
 ## Scenario Routing
 
@@ -56,10 +57,21 @@ python embedded-project-builder/scripts/create_project_plan.py \
   --out-dir ./imu-node-plan
 ```
 
+Create a scaffold plus planning docs:
+
+```bash
+python embedded-project-builder/scripts/create_project_scaffold.py \
+  --scenario zephyr_st_imu_sensor_node \
+  --project-name imu-node \
+  --board xiao_ble/nrf52840/sense \
+  --out-dir ./imu-node
+```
+
 Validate generated planning docs:
 
 ```bash
 python embedded-project-builder/scripts/validate_project_plan.py --project-dir ./imu-node-plan
+python embedded-project-builder/scripts/validate_project_scaffold.py --project-dir ./imu-node
 ```
 
 ## Required Output Contract
