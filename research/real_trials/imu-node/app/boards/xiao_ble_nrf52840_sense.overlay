@@ -1,0 +1,23 @@
+/*
+ * Zephyr ST IMU overlay template.
+ *
+ * TODO: Confirm the real sensor bus, address strap, IRQ pin, and board
+ * revision before treating this as hardware truth.
+ */
+
+/ {
+    aliases {
+        imu0 = &lsm6dsl;
+    };
+};
+
+&i2c0 {
+    status = "okay";
+
+    lsm6dsl: lsm6dsl@6a {
+        compatible = "st,lsm6dsl";
+        reg = <0x6a>;
+        status = "okay";
+        irq-gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
+    };
+};
