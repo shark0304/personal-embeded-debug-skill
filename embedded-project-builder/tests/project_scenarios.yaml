@@ -1,0 +1,36 @@
+scenarios:
+  - id: zephyr_st_imu_sensor_node
+    expected_recipe: references/project_recipes/zephyr_st_imu_sensor_node.md
+    expected_outputs:
+      - project_plan.md
+      - datasheet_reading_note.md
+      - driver_bringup_note.md
+      - validation_plan.md
+  - id: stm32h7_dma_adc_logger
+    expected_recipe: references/project_recipes/stm32h7_dma_adc_logger.md
+    expected_outputs:
+      - project_plan.md
+      - datasheet_reading_note.md
+      - driver_bringup_note.md
+      - validation_plan.md
+  - id: esp32s3_tinyml_motion_classifier
+    expected_recipe: references/project_recipes/esp32s3_tinyml_motion_classifier.md
+    expected_outputs:
+      - project_plan.md
+      - datasheet_reading_note.md
+      - driver_bringup_note.md
+      - validation_plan.md
+  - id: rk3588_linux_i2c_driver_probe
+    expected_recipe: references/project_recipes/rk3588_linux_i2c_driver_probe.md
+    expected_outputs:
+      - project_plan.md
+      - datasheet_reading_note.md
+      - driver_bringup_note.md
+      - validation_plan.md
+  - id: ti_c2000_adc_pwm_control_loop
+    expected_recipe: references/project_recipes/ti_c2000_adc_pwm_control_loop.md
+    expected_outputs:
+      - project_plan.md
+      - datasheet_reading_note.md
+      - driver_bringup_note.md
+      - validation_plan.md

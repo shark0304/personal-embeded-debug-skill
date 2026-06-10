@@ -16,6 +16,28 @@ The skill is designed as a reproducible debugging workbench:
 - Route Zephyr, ESP-IDF, Linux, Cortex-M, RTOS, DMA/cache, field diagnostics,
   MCUboot/OTA, and TinyML issues to focused runbooks and scripts.
 
+## Two-skill model
+
+This repository now carries two related skills:
+
+- `embedded-project-builder`: the upstream planning skill for 0-to-1 embedded
+  learning and project development. It generates `project_plan.md`,
+  `datasheet_reading_note.md`, `driver_bringup_note.md`, and
+  `validation_plan.md` for Zephyr sensor nodes, STM32 DMA acquisition, ESP32
+  TinyML demos, RK3588 Linux driver/NPU work, and TI C2000 control demos.
+- `embedded-debug`: the evidence-first debug workbench used after a concrete
+  failure appears. It collects debug packets, ranks hypotheses, generates
+  scored reports, and promotes real failures to golden packets.
+
+Typical handoff points:
+
+- build failure -> collect build log and toolchain evidence with
+  `embedded-debug`
+- sensor init failure -> Zephyr sensor bring-up and DTS/Kconfig runbooks
+- HardFault/reset -> Cortex-M hardfault or field diagnostics runbooks
+- Linux probe failure -> Linux driver probe runbook
+- TinyML latency/memory miss -> TinyML latency/memory runbook
+
 ## v3.1 focus
 
 v3.1 adds stronger Zephyr sensor bring-up support:
@@ -60,6 +82,8 @@ python scripts/analyze/analyze_i2c_logic_trace.py --trace logic_trace.csv
 
 ## Repository layout
 
+- `embedded-project-builder/`: upper-level project planning skill for learning,
+  datasheet reading, driver bring-up, validation, and debug handoff.
 - `SKILL.md`: lightweight Codex entry and routing rules.
 - `agents/openai.yaml`: UI-facing skill metadata.
 - `references/runbooks/`: focused diagnostic procedures.

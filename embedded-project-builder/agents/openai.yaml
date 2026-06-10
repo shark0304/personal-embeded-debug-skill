@@ -1,0 +1,8 @@
+interface:
+  display_name: "Embedded Project Builder"
+  short_description: "Plan embedded projects from idea to validation"
+  brand_color: "#2563EB"
+  default_prompt: "Use $embedded-project-builder to create a project route, datasheet note, driver bring-up plan, and validation plan before handing failures to $embedded-debug."
+
+policy:
+  allow_implicit_invocation: true
