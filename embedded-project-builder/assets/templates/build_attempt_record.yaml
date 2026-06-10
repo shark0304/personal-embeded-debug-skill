@@ -1,0 +1,21 @@
+trial_id:
+date:
+scenario:
+board:
+scaffold_path:
+scaffold_validated:
+build_attempted:
+build_command:
+build_result:
+blocked_by:
+logs:
+  build_log:
+  toolchain_env_report:
+  debug_packet:
+  debug_report:
+debug_handoff:
+  required:
+  performed:
+  reason:
+next_action:
+notes:

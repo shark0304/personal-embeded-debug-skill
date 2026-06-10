@@ -1,0 +1,95 @@
+{
+  "board": "xiao_ble/nrf52840/sense",
+  "checks": [
+    {
+      "detail": "python >= 3.8",
+      "executable": "/Users/a/.hermes/hermes-agent/venv/bin/python",
+      "name": "python",
+      "ok": true,
+      "required": true,
+      "version": "3.11.15"
+    },
+    {
+      "detail": "missing from PATH",
+      "name": "west",
+      "ok": false,
+      "path": null,
+      "required": true
+    },
+    {
+      "detail": "missing from PATH",
+      "name": "cmake",
+      "ok": false,
+      "path": null,
+      "required": true
+    },
+    {
+      "detail": "missing from PATH",
+      "name": "ninja",
+      "ok": false,
+      "path": null,
+      "required": true
+    },
+    {
+      "detail": "missing from PATH",
+      "name": "dtc",
+      "ok": false,
+      "path": null,
+      "required": true
+    },
+    {
+      "detail": "not set",
+      "name": "ZEPHYR_BASE",
+      "ok": false,
+      "required": true,
+      "value": ""
+    },
+    {
+      "candidates": [],
+      "detail": "west workspace not found",
+      "name": "Zephyr workspace",
+      "ok": false,
+      "required": true
+    },
+    {
+      "candidates": [],
+      "detail": "Zephyr SDK not found in common locations",
+      "env": "",
+      "name": "Zephyr SDK",
+      "ok": false,
+      "required": true
+    },
+    {
+      "detail": "board support not verifiable",
+      "matches": [],
+      "name": "board support",
+      "ok": false,
+      "required": true
+    }
+  ],
+  "host": {
+    "machine": "x86_64",
+    "platform": "macOS-26.5.1-x86_64-i386-64bit",
+    "release": "25.5.0",
+    "system": "Darwin"
+  },
+  "missing": [
+    "ZEPHYR_BASE",
+    "Zephyr SDK",
+    "Zephyr workspace",
+    "board support",
+    "cmake",
+    "dtc",
+    "ninja",
+    "west"
+  ],
+  "next_steps": [
+    "Read references/toolchains/zephyr_toolchain_bootstrap_macos.md.",
+    "Install west, cmake, ninja, dtc, and the Zephyr SDK.",
+    "Initialize or enter a Zephyr workspace and verify `west boards` lists the target board.",
+    "Do not mark scaffold build success until `west build` has produced a real build log."
+  ],
+  "ok": false,
+  "scenario": "zephyr_st_imu_sensor_node",
+  "warnings": []
+}

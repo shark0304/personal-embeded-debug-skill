@@ -22,6 +22,11 @@ The scaffold was generated and `validate_project_scaffold.py` passed, but the
 real Zephyr build was not attempted because the local environment does not have
 the required build tools and workspace in PATH or common locations.
 
+Structured records:
+
+- toolchain environment report: `research/real_trials/imu-node/toolchain_env_report.json`
+- build attempt record: `research/real_trials/imu-node/build_attempt_record.yaml`
+
 ## Missing Or Not Verifiable
 
 - `west`: not found in PATH.

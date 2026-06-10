@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -33,6 +36,7 @@ jobs:
           python embedded-project-builder/scripts/validate_project_plan.py --help
           python embedded-project-builder/scripts/create_project_scaffold.py --help
           python embedded-project-builder/scripts/validate_project_scaffold.py --help
+          python embedded-project-builder/scripts/check_toolchain_env.py --help
 
       - name: embedded-project-builder plan smoke
         run: |

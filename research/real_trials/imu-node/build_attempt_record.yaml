@@ -1,0 +1,35 @@
+trial_id: zephyr_st_imu_scaffold_toolchain_check_2026_06_10
+date: 2026-06-10
+scenario: zephyr_st_imu_sensor_node
+board: xiao_ble/nrf52840/sense
+scaffold_path: research/real_trials/imu-node
+scaffold_validated: true
+build_attempted: false
+build_command: west build -b xiao_ble/nrf52840/sense app -p always
+build_result: blocked_by_missing_toolchain
+blocked_by:
+  - west
+  - cmake
+  - ninja
+  - dtc
+  - ZEPHYR_BASE
+  - Zephyr workspace
+  - Zephyr SDK
+  - board support
+logs:
+  build_log:
+  toolchain_env_report: research/real_trials/imu-node/toolchain_env_report.json
+  debug_packet:
+  debug_report:
+debug_handoff:
+  required: false
+  performed: false
+  reason: No build.log was generated; this is a host toolchain/bootstrap blocker, not evidence of a scaffold build defect.
+next_action:
+  - Follow embedded-project-builder/references/toolchains/zephyr_toolchain_bootstrap_macos.md.
+  - Re-run check_toolchain_env.py until the required Zephyr checks pass.
+  - Run west build and only then hand off a failing build log to embedded-debug.
+notes: |
+  Scaffold generation and validate_project_scaffold.py passed. The local host is
+  macOS x86_64, but required Zephyr build tools and workspace evidence are
+  absent. Build success was not claimed.

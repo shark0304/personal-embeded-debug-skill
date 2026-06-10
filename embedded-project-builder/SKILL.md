@@ -14,13 +14,14 @@ Use this skill to organize embedded work before debugging starts. It creates pro
 1. Identify the target scenario, board, peripheral/sensor, toolchain, and user experience level.
 2. If the user asks for a learning route or planning docs, run `create_project_plan.py`.
 3. If the user asks to "搭项目骨架", "create scaffold", "start a project", or needs files to begin coding, run `create_project_scaffold.py`.
-4. Generate or update:
+4. If build is blocked by missing tools or SDK/workspace setup, run `check_toolchain_env.py` before editing scaffold code.
+5. Generate or update:
    - `project_plan.md`
    - `datasheet_reading_note.md`
    - `driver_bringup_note.md`
    - `validation_plan.md`
-5. Keep plans practical: milestone, evidence, test command, expected observation, exit criteria.
-6. When build/runtime validation fails, stop guessing and hand the evidence to `$embedded-debug`.
+6. Keep plans practical: milestone, evidence, test command, expected observation, exit criteria.
+7. When build/runtime validation fails after the toolchain is ready, stop guessing and hand the evidence to `$embedded-debug`.
 
 ## Scenario Routing
 
@@ -67,6 +68,15 @@ python embedded-project-builder/scripts/create_project_scaffold.py \
   --out-dir ./imu-node
 ```
 
+Check toolchain readiness:
+
+```bash
+python embedded-project-builder/scripts/check_toolchain_env.py \
+  --scenario zephyr_st_imu_sensor_node \
+  --board xiao_ble/nrf52840/sense \
+  --json
+```
+
 Validate generated planning docs:
 
 ```bash
@@ -85,6 +95,12 @@ For each project plan, include:
 - debug handoff condition that names the `$embedded-debug` runbook or analyzer
 
 ## Handoff To Embedded Debug
+
+Read toolchain bootstrap references before declaring scaffold failure:
+
+- Zephyr missing toolchain: `references/toolchains/zephyr_toolchain_bootstrap_macos.md`
+- ESP-IDF missing toolchain: `references/toolchains/espidf_toolchain_bootstrap.md`
+- STM32 missing toolchain: `references/toolchains/stm32_toolchain_bootstrap.md`
 
 Use `$embedded-debug` when:
 
