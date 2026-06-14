@@ -27,7 +27,7 @@
 <br/>
 
 <p align="center">
-  <img src="assets/architecture.png" width="100%" alt="Embedded Debug Workbench Architecture"/>
+  <img src="assets/social-preview.png" width="100%" alt="Embedded Debug Workbench"/>
 </p>
 
 <br/>
