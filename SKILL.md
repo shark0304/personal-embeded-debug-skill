@@ -1,11 +1,11 @@
 ---
 name: embedded-debug
-description: Advanced Embedded Debug Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, or TinyML deployment debugging. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
+description: Advanced Embedded Failure Intelligence Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, TinyML deployment debugging, project memory, failure notebooks, failure pattern matching, or fix verification planning. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
 ---
 
 # Embedded Debug
 
-Advanced Embedded Debug Workbench is evidence-first: collect the smallest decisive artifacts, rank hypotheses with verification steps, then preserve resolved cases as golden packets.
+Advanced Embedded Debug Workbench is evidence-first: collect the smallest decisive artifacts, rank hypotheses with verification steps, then preserve resolved cases as notebooks or golden packets.
 
 Use this skill for focused workflows where generic advice is not enough:
 
@@ -79,7 +79,11 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - Low power: `references/runbooks/low_power_runbook.md`
    - Field diagnostics: `references/runbooks/field_diagnostics_runbook.md`
 5. Apply v3 routing when artifacts imply a workflow:
-   - Real project directory: prefer `scripts/project/run_project_triage.py` for a safe first pass; for manual handoff, run `scripts/project/detect_project_context.py`, optionally generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`, then run `scripts/collect/collect_debug_packet.py`.
+   - Real project directory: prefer `scripts/project/run_project_triage.py` for a safe first pass. If the project should remember board/toolchain/recovery facts, create `.embedded-debug.yml` with `scripts/project/init_project_memory.py`.
+   - Failure case needs team handoff: create `debug/failure-notebook/<case>/` with `scripts/project/create_failure_notebook.py`.
+   - Existing packet needs likely-pattern ranking: run `scripts/analyze/match_failure_patterns.py`.
+   - Proposed fix or hypothesis needs proof: run `scripts/verify/generate_fix_verification_plan.py`.
+   - Manual handoff: run `scripts/project/detect_project_context.py`, optionally generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`, then run `scripts/collect/collect_debug_packet.py`.
    - Zephyr project or Twister need: generate or parse CI with `scripts/ci/generate_twister_case.py` and `scripts/ci/parse_twister_report.py`.
    - ESP-IDF project: generate or parse pytest-embedded with `scripts/ci/generate_pytest_embedded_case.py` and `scripts/ci/parse_pytest_embedded_report.py`.
    - Renode simulation request: use `scripts/ci/generate_renode_robot_test.py` and `scripts/ci/parse_renode_report.py`.
@@ -127,6 +131,10 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - `scripts/project/detect_project_context.py` for detecting Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, embedded Linux, FreeRTOS, and TinyML project context before collecting evidence.
    - `scripts/project/create_project_adapter.py` for writing a project-local adapter packet with evidence globs, suggested commands, runbooks, deterministic scripts, and risk labels.
    - `scripts/project/run_project_triage.py` for safe end-to-end project triage: detect context, collect packet metadata, score evidence, and write a triage report without running hardware-changing commands.
+   - `scripts/project/init_project_memory.py` for creating a local `.embedded-debug.yml` with board/toolchain/recovery facts.
+   - `scripts/project/create_failure_notebook.py` for preserving a local failure case record, packet, evidence score, hypotheses, and outcome.
+   - `scripts/analyze/match_failure_patterns.py` for ranking bundled failure patterns against packet evidence.
+   - `scripts/verify/generate_fix_verification_plan.py` for defining before/after evidence, acceptance criteria, and non-evidence for a proposed fix.
    - `scripts/reports/generate_debug_report.py` for markdown debug reports.
    - `scripts/verify/run_skill_regression.py` for golden packet fixture checks.
    - `scripts/verify/score_debug_report.py` for report quality scoring.

@@ -1,0 +1,30 @@
+# Example project memory for Embedded Debug Workbench.
+# Copy to .embedded-debug.yml inside a firmware/BSP project and edit for your board.
+schema_version: 1
+project:
+  id: synthetic-zephyr-sensor
+  platform: zephyr
+  board: nrf52840dk_nrf52840
+  board_revision: synthetic
+  mcu_or_soc: nRF52840
+toolchain:
+  sdk: Zephyr SDK
+  compiler: arm-zephyr-eabi-gcc
+  build_system: west
+commands:
+  safe_build: west build -b nrf52840dk_nrf52840 .
+  safe_test: west twister -T tests -p nrf52840dk_nrf52840
+  risky_flash: west flash
+artifacts:
+  build_log: build.log
+  serial_log: serial.log
+  dts: build/zephyr/zephyr.dts
+  kconfig: build/zephyr/.config
+safety:
+  recovery_path: SWD probe and known-good image
+  require_confirmation_for:
+    - flash
+    - debugger_attach
+    - option_bytes
+notes:
+  - Synthetic example. Do not store real secrets, customer data, or private board identifiers here.

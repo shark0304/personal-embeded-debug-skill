@@ -21,6 +21,7 @@ def main() -> None:
     results.append(run_tool(scripts / "analyze" / "analyze_i2c_logic_trace.py", ["--help"]))
     results.extend(run_project_adapter_tests(scripts))
     results.extend(run_project_triage_tests(scripts))
+    results.extend(run_failure_workflow_tests(skill_dir, scripts))
     results.append(run_profile_dossier_check(scripts))
     results.append(
         run_tool(
@@ -197,6 +198,28 @@ def run_project_triage_tests(scripts: Path) -> list[dict[str, object]]:
             ),
             run_tool(scripts / "collect" / "validate_debug_packet.py", ["--packet", str(packet), "--format", "json"]),
             run_tool(scripts / "collect" / "validate_debug_packet.py", ["--packet", str(packet), "--format", "markdown"]),
+        ]
+
+
+def run_failure_workflow_tests(skill_dir: Path, scripts: Path) -> list[dict[str, object]]:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "west.yml").write_text("manifest:\n  projects: []\n", encoding="utf-8")
+        (root / "prj.conf").write_text("CONFIG_I2C=y\nCONFIG_SENSOR=y\n", encoding="utf-8")
+        (root / "build.log").write_text("west build -b nrf52840dk_nrf52840 .\n", encoding="utf-8")
+        (root / "serial.log").write_text("failed to initialize chip: NACK\n", encoding="utf-8")
+        (root / "zephyr.dts").write_text("&i2c0 { status = \"okay\"; };\n", encoding="utf-8")
+        packet = root / "debug" / "debug_packet.yaml"
+        return [
+            run_tool(scripts / "project" / "init_project_memory.py", ["--project-root", str(root), "--overwrite"]),
+            run_tool(
+                scripts / "project" / "run_project_triage.py",
+                ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--packet-out", str(packet), "--report-out", str(root / "debug" / "triage.md")],
+            ),
+            run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(packet), "--format", "json"]),
+            run_tool(scripts / "verify" / "generate_fix_verification_plan.py", ["--packet", str(packet), "--hypothesis", "wrong I2C address"]),
+            run_tool(scripts / "project" / "create_failure_notebook.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--out-dir", str(root / "debug" / "failure-notebook")]),
+            run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(skill_dir / "tests" / "golden_packets" / "zephyr_st_imu_bringup_real" / "debug_packet.yaml"), "--format", "markdown"]),
         ]
 
 

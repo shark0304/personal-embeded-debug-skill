@@ -5,12 +5,12 @@
 <h1 align="center">Embedded Debug Workbench</h1>
 
 <p align="center">
-  <strong>Turn messy firmware failures into evidence packets, ranked hypotheses, and regression-ready fixes.</strong>
+  <strong>Turn messy firmware failures into project memory, evidence packets, ranked hypotheses, and verification-ready fixes.</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml"><img src="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml/badge.svg" alt="Validate skills"/></a>
-  <img src="https://img.shields.io/badge/version-v3.3-0F766E?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-v3.4-0F766E?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/adapters-10_real_project_types-0F766E?style=flat-square" alt="Project adapters"/>
   <img src="https://img.shields.io/badge/scenarios-43_validated-534AB7?style=flat-square" alt="Evaluation scenarios"/>
   <img src="https://img.shields.io/badge/golden_packets-14-888780?style=flat-square" alt="Golden packets"/>
@@ -29,10 +29,10 @@
 
 ## Why It Exists
 
-Embedded failures are expensive because the evidence is scattered: logs, linker maps, fault registers, devicetree output, RTOS snapshots, scope traces, and half-remembered board history. This skill makes the debugging loop explicit:
+Embedded failures are expensive because the evidence is scattered: logs, linker maps, fault registers, devicetree output, RTOS snapshots, scope traces, and half-remembered board history. This workbench makes the failure engineering loop explicit:
 
 <p align="center">
-  <strong>detect project context → collect decisive evidence → rank hypotheses → verify fixes → preserve golden packets</strong>
+  <strong>remember project facts → collect decisive evidence → match failure patterns → verify fixes → preserve notebooks/golden packets</strong>
 </p>
 
 It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
@@ -42,9 +42,11 @@ It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 | I have... | Run this | You get |
 |---|---|---|
 | A real firmware or BSP repo | `scripts/project/run_project_triage.py` | Project type, evidence score, safe next commands, triage report |
+| A project that needs persistent board/toolchain facts | `scripts/project/init_project_memory.py` | `.embedded-debug.yml` project memory |
 | A project and want manual adapter details | `scripts/project/detect_project_context.py` | Project type, artifact checklist, safe command suggestions |
 | Logs, ELF/map, DTS/Kconfig, or RTOS snapshots | `scripts/collect/collect_debug_packet.py` | Reproducible `debug_packet.yaml` |
 | A packet and want to know if evidence is enough | `scripts/collect/validate_debug_packet.py` | Completeness score and missing evidence checklist |
+| A proposed root cause or fix | `scripts/verify/generate_fix_verification_plan.py` | Before/after proof plan and acceptance criteria |
 | A suspected root cause | `scripts/reports/generate_debug_report.py` | Scored report with verification steps |
 | A new embedded idea | `embedded-project-builder/` | Project plan, scaffold, validation checklist |
 
@@ -54,6 +56,14 @@ It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 python scripts/project/run_project_triage.py \
   --project-root . \
   --symptom "I2C sensor probe failed"
+```
+
+Add project memory when the same board will be debugged repeatedly:
+
+```bash
+python scripts/project/init_project_memory.py \
+  --project-root . \
+  --overwrite
 ```
 
 Manual path:
@@ -79,8 +89,11 @@ python scripts/collect/collect_debug_packet.py \
 | Capability | What it does |
 |---|---|
 | **Project adapters** | Detects Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, Embedded Linux, FreeRTOS, and TinyML projects. |
+| **Project memory** | Stores board, toolchain, safe commands, recovery path, and expected artifacts in `.embedded-debug.yml`. |
 | **Evidence packets** | Normalizes logs, ELF/map, DTS/Kconfig, serial output, fault registers, board context, and missing evidence. |
 | **Evidence scoring** | Scores whether a packet is ready for analysis or still too thin for root-cause claims. |
+| **Failure notebooks** | Preserves a local case folder with packet, context, evidence score, hypotheses, outcome, and issue record. |
+| **Pattern matching** | Ranks bundled failure patterns against packet evidence before jumping to a root cause. |
 | **Deterministic analyzers** | Runs focused checks for HardFaults, ESP-IDF panics, Linux logs, DMA/cache alignment, RTOS waits, UART/I2C timing, memory budgets, and TinyML vectors. |
 | **Regression loop** | Converts resolved cases into golden packets and validates future skill behavior with CI. |
 
@@ -118,6 +131,20 @@ Read the full workflow in [docs/project_adapters.md](docs/project_adapters.md).
 | Low-power current budget drift | `average_current.py`, low-power runbook, measurement plan templates |
 
 See [docs/debug_recipes.md](docs/debug_recipes.md) for evidence, commands, and verification criteria for each recipe.
+
+## Failure Workflow
+
+```bash
+python scripts/project/init_project_memory.py --project-root . --overwrite
+python scripts/project/run_project_triage.py --project-root . --symptom "failure statement"
+python scripts/analyze/match_failure_patterns.py --packet debug/debug_packet.yaml --format markdown
+python scripts/verify/generate_fix_verification_plan.py \
+  --packet debug/debug_packet.yaml \
+  --hypothesis "candidate root cause"
+python scripts/project/create_failure_notebook.py \
+  --project-root . \
+  --symptom "failure statement"
+```
 
 ## Workflow
 
@@ -176,8 +203,8 @@ references/                    Runbooks, platform packs, failure patterns
 scripts/project/               Real project detection and adapter generation
 scripts/collect/               Debug packet collection
 scripts/analyze/               Focused analyzers
+scripts/verify/                Report scoring and fix verification planning
 scripts/reports/               Debug report generation
-scripts/verify/                Regression and report scoring
 profiles/                      Board, project, packet schemas
 assets/templates/              Capture plans and instrumentation snippets
 tests/golden_packets/          Regression-ready debug packets
@@ -203,8 +230,8 @@ Current baseline:
 |---|---|
 | Golden packets | 14 |
 | Evaluation scenarios | 43 |
-| Smoke-tested tools | 29 |
-| Project adapter / triage tests | 9 |
+| Smoke-tested tools | 35 |
+| Project adapter / triage / failure workflow tests | 12 |
 
 ## Boundary
 

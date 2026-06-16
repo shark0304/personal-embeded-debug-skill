@@ -15,6 +15,12 @@ They do not run hardware-changing commands, fetch metadata from the network, or 
 From the root of a firmware or BSP project:
 
 ```bash
+python /path/to/personal-embeded-debug-skill/scripts/project/init_project_memory.py \
+  --project-root . \
+  --overwrite
+```
+
+```bash
 python /path/to/personal-embeded-debug-skill/scripts/project/run_project_triage.py \
   --project-root . \
   --symptom "short failure statement"
@@ -54,6 +60,18 @@ python /path/to/personal-embeded-debug-skill/scripts/collect/validate_debug_pack
   --format markdown
 ```
 
+Rank bundled failure patterns and generate a proof plan:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/analyze/match_failure_patterns.py \
+  --packet debug/debug_packet.yaml \
+  --format markdown
+
+python /path/to/personal-embeded-debug-skill/scripts/verify/generate_fix_verification_plan.py \
+  --packet debug/debug_packet.yaml \
+  --hypothesis "candidate root cause"
+```
+
 ## Supported Project Families
 
 | Adapter | Signals | Typical next evidence |
@@ -85,9 +103,9 @@ python /path/to/personal-embeded-debug-skill/scripts/collect/validate_debug_pack
 ```mermaid
 flowchart LR
     A["Real project"] --> B["Detect adapter"]
-    B --> C["Score evidence"]
-    C --> D["Generate triage report"]
-    D --> E["Run focused analyzer"]
+    B --> C["Load project memory"]
+    C --> D["Score evidence"]
+    D --> E["Match failure patterns"]
     E --> F["Verify and preserve"]
 ```
 

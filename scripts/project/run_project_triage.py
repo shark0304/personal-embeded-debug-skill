@@ -19,6 +19,11 @@ from detect_project_context import detect_project_context  # noqa: E402
 from validate_debug_packet import render_markdown as render_validation_markdown  # noqa: E402
 from validate_debug_packet import validate_debug_packet  # noqa: E402
 
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover
+    yaml = None
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run safe project triage: detect project, collect packet metadata, score evidence, and write a triage report.")
@@ -32,6 +37,7 @@ def main() -> None:
 
     root = Path(args.project_root).resolve()
     context = detect_project_context(root)
+    memory = load_project_memory(root)
     artifacts = collect_artifacts(root)
     platform = detect_platform(root, artifacts)
     if platform == "unknown" and context.get("primary_adapter") in {"zephyr", "esp-idf", "embedded-linux", "freertos", "tinyml"}:
@@ -40,10 +46,11 @@ def main() -> None:
         platform = "cortex-m"
 
     packet = build_packet(root, platform, artifacts)
+    apply_project_memory(packet, memory)
     if args.symptom:
         packet["symptoms"] = [args.symptom]
     validation = validate_debug_packet(packet)
-    report = render_triage_report(root, context, packet, validation, args.symptom)
+    report = render_triage_report(root, context, packet, validation, args.symptom, memory)
 
     packet_path = Path(args.packet_out)
     report_path = Path(args.report_out)
@@ -64,6 +71,7 @@ def main() -> None:
         "platform": platform,
         "evidence_score": validation["score"],
         "evidence_grade": validation["grade"],
+        "project_memory": bool(memory),
         "packet": "" if args.no_write_packet else str(packet_path),
         "report": str(report_path),
         "missing_required_evidence": validation["required_evidence"]["missing"],
@@ -83,6 +91,7 @@ def render_triage_report(
     packet: dict[str, Any],
     validation: dict[str, Any],
     symptom: str,
+    memory: dict[str, Any] | None = None,
 ) -> str:
     primary = primary_adapter(context)
     lines = [
@@ -97,6 +106,7 @@ def render_triage_report(
         f"- Primary adapter: `{primary.get('id', context.get('primary_adapter', 'unknown'))}`",
         f"- Platform for packet: `{packet.get('platform', 'unknown')}`",
         f"- Evidence completeness: **{validation['score']}/100** (`{validation['grade']}`)",
+        f"- Project memory: `{'loaded' if memory else 'not found'}`",
         "",
         "## Detected Adapter",
         "",
@@ -114,6 +124,9 @@ def render_triage_report(
         lines.append("No project adapter matched. Start with generic build and serial logs.\n")
 
     lines.extend(["## Evidence Completeness", "", render_validation_markdown(validation), ""])
+    if memory:
+        lines.extend(["", "## Project Memory", ""])
+        lines.extend(render_project_memory_summary(memory))
     lines.extend(["## Available Artifacts", ""])
     artifacts = packet.get("artifacts", {})
     if isinstance(artifacts, dict) and artifacts:
@@ -160,6 +173,78 @@ def render_triage_report(
         ]
     )
     return "\n".join(lines)
+
+
+def load_project_memory(root: Path) -> dict[str, Any] | None:
+    path = root / ".embedded-debug.yml"
+    if not path.is_file():
+        return None
+    text = path.read_text(encoding="utf-8")
+    try:
+        if yaml is not None:
+            data = yaml.safe_load(text)
+        else:
+            data = json.loads(text)
+    except Exception:
+        data = parse_simple_project_memory(text)
+    return data if isinstance(data, dict) else None
+
+
+def apply_project_memory(packet: dict[str, Any], memory: dict[str, Any] | None) -> None:
+    if not memory:
+        return
+    project = memory.get("project", {}) if isinstance(memory.get("project"), dict) else {}
+    toolchain = memory.get("toolchain", {}) if isinstance(memory.get("toolchain"), dict) else {}
+    artifacts = memory.get("artifacts", {}) if isinstance(memory.get("artifacts"), dict) else {}
+    if project.get("board") and str(project.get("board")).lower() != "unknown":
+        packet["board"] = project["board"]
+    if toolchain.get("compiler") and str(toolchain.get("compiler")).lower() != "unknown":
+        packet["toolchain"] = toolchain["compiler"]
+    elif toolchain.get("sdk") and str(toolchain.get("sdk")).lower() != "unknown":
+        packet["toolchain"] = toolchain["sdk"]
+    if toolchain.get("build_system") and str(toolchain.get("build_system")).lower() != "unknown":
+        packet["build_system"] = toolchain["build_system"]
+    packet.setdefault("constraints", [])
+    if isinstance(packet["constraints"], list):
+        recovery = memory.get("safety", {}).get("recovery_path") if isinstance(memory.get("safety"), dict) else None
+        if recovery and str(recovery).lower() != "unknown":
+            packet["constraints"].append(f"Recovery path: {recovery}")
+    packet_artifacts = packet.setdefault("artifacts", {})
+    if isinstance(packet_artifacts, dict):
+        for key in ("build_log", "serial_log", "dts", "kconfig", "elf", "map", "dmesg", "boot_log"):
+            value = artifacts.get(key)
+            if value and key not in packet_artifacts:
+                packet_artifacts[key] = [str(value)]
+
+
+def render_project_memory_summary(memory: dict[str, Any]) -> list[str]:
+    project = memory.get("project", {}) if isinstance(memory.get("project"), dict) else {}
+    toolchain = memory.get("toolchain", {}) if isinstance(memory.get("toolchain"), dict) else {}
+    safety = memory.get("safety", {}) if isinstance(memory.get("safety"), dict) else {}
+    return [
+        f"- Project id: `{project.get('id', 'unknown')}`",
+        f"- Board: `{project.get('board', 'unknown')}`",
+        f"- MCU/SoC: `{project.get('mcu_or_soc', 'unknown')}`",
+        f"- Build system: `{toolchain.get('build_system', 'unknown')}`",
+        f"- Recovery path: `{safety.get('recovery_path', 'unknown')}`",
+        "",
+    ]
+
+
+def parse_simple_project_memory(text: str) -> dict[str, Any]:
+    data: dict[str, Any] = {}
+    current: dict[str, Any] | None = None
+    for raw in text.splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        if not raw.startswith(" ") and raw.rstrip().endswith(":"):
+            key = raw.strip()[:-1]
+            current = {}
+            data[key] = current
+        elif current is not None and ":" in raw:
+            key, value = raw.strip().split(":", 1)
+            current[key.strip()] = value.strip().strip("'\"")
+    return data
 
 
 def primary_adapter(context: dict[str, Any]) -> dict[str, Any]:

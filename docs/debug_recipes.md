@@ -12,6 +12,14 @@ python scripts/project/run_project_triage.py \
 python scripts/collect/validate_debug_packet.py \
   --packet debug/debug_packet.yaml \
   --format markdown
+
+python scripts/analyze/match_failure_patterns.py \
+  --packet debug/debug_packet.yaml \
+  --format markdown
+
+python scripts/verify/generate_fix_verification_plan.py \
+  --packet debug/debug_packet.yaml \
+  --hypothesis "<candidate root cause>"
 ```
 
 ## Recipes
