@@ -19,6 +19,7 @@ def main() -> None:
     results.extend(run_parser_fixture_tests(scripts))
     results.append(run_tool(scripts / "analyze" / "analyze_i2c_init_failure.py", ["--help"]))
     results.append(run_tool(scripts / "analyze" / "analyze_i2c_logic_trace.py", ["--help"]))
+    results.extend(run_project_adapter_tests(scripts))
     results.append(run_profile_dossier_check(scripts))
     results.append(
         run_tool(
@@ -161,6 +162,21 @@ def run_profile_dossier_check(scripts: Path) -> dict[str, object]:
             encoding="utf-8",
         )
         return run_tool(scripts / "profile_dossier_check.py", ["--profile", str(profile), "--dossier", str(dossier)])
+
+
+def run_project_adapter_tests(scripts: Path) -> list[dict[str, object]]:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "west.yml").write_text("manifest:\n  remotes: []\n", encoding="utf-8")
+        (root / "prj.conf").write_text("CONFIG_I2C=y\n", encoding="utf-8")
+        out_dir = root / "debug" / "embedded_debug_adapter"
+        return [
+            run_tool(scripts / "project" / "detect_project_context.py", ["--project-root", str(root), "--format", "json"]),
+            run_tool(
+                scripts / "project" / "create_project_adapter.py",
+                ["--project-root", str(root), "--out-dir", str(out_dir), "--overwrite"],
+            ),
+        ]
 
 
 def run_tool(script: Path, args: list[str]) -> dict[str, object]:

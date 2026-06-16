@@ -20,8 +20,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install dev dependencies
+        run: pip install -r requirements-dev.txt
+
       - name: embedded-debug regression
         run: python scripts/verify/run_skill_regression.py
+
+      - name: embedded-debug pytest
+        run: pytest tests/
 
       - name: embedded-debug smoke tests
         run: python scripts/smoke_test_tools.py
