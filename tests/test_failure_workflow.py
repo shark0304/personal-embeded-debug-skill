@@ -36,10 +36,21 @@ def test_project_memory_is_loaded_by_triage(tmp_path: Path) -> None:
     assert init.returncode == 0, init.stderr
     memory = project / ".embedded-debug.yml"
     assert memory.is_file()
-    text = memory.read_text(encoding="utf-8")
-    text = text.replace("board: unknown", "board: demo_board")
-    text = text.replace("compiler: unknown", "compiler: arm-zephyr-eabi-gcc")
-    memory.write_text(text, encoding="utf-8")
+    memory.write_text(
+        "schema_version: 1\n"
+        "project:\n"
+        "  id: zephyr_project\n"
+        "  platform: zephyr\n"
+        "  board: demo_board\n"
+        "  board_revision: synthetic\n"
+        "  mcu_or_soc: nrf52\n"
+        "toolchain:\n"
+        "  compiler: arm-zephyr-eabi-gcc\n"
+        "  build_system: west\n"
+        "safety:\n"
+        "  recovery_path: SWD probe\n",
+        encoding="utf-8",
+    )
 
     completed = run_tool([str(TRIAGE), "--project-root", str(project), "--symptom", "I2C sensor probe failed"])
 
