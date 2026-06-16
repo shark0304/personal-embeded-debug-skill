@@ -12,6 +12,8 @@ TRIAGE = ROOT / "scripts" / "project" / "run_project_triage.py"
 NOTEBOOK = ROOT / "scripts" / "project" / "create_failure_notebook.py"
 MATCH_PATTERNS = ROOT / "scripts" / "analyze" / "match_failure_patterns.py"
 FIX_PLAN = ROOT / "scripts" / "verify" / "generate_fix_verification_plan.py"
+READINESS = ROOT / "scripts" / "project" / "score_bringup_readiness.py"
+CAPTURE = ROOT / "scripts" / "project" / "suggest_evidence_capture.py"
 
 
 def run_tool(args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -60,6 +62,8 @@ def test_project_memory_is_loaded_by_triage(tmp_path: Path) -> None:
     report = (project / "debug" / "project_triage_report.md").read_text(encoding="utf-8")
     assert "Project Memory" in report
     assert "demo_board" in report
+    assert "Failure Pattern Matches" in report
+    assert "zephyr" in report.lower()
 
 
 def test_pattern_matcher_and_fix_plan(tmp_path: Path) -> None:
@@ -78,6 +82,55 @@ def test_pattern_matcher_and_fix_plan(tmp_path: Path) -> None:
     assert plan.returncode == 0, plan.stderr
     assert "Fix Verification Plan" in plan.stdout
     assert "wrong I2C address" in plan.stdout
+
+
+def test_bringup_readiness_scores_project_memory(tmp_path: Path) -> None:
+    project = make_zephyr_project(tmp_path)
+    (project / ".embedded-debug.yml").write_text(
+        "schema_version: 1\n"
+        "project:\n"
+        "  id: zephyr_project\n"
+        "  platform: zephyr\n"
+        "  board: demo_board\n"
+        "  board_revision: synthetic\n"
+        "  mcu_or_soc: nrf52\n"
+        "toolchain:\n"
+        "  sdk: Zephyr synthetic SDK\n"
+        "  compiler: arm-zephyr-eabi-gcc\n"
+        "  build_system: west\n"
+        "commands:\n"
+        "  safe_build: west build -b demo_board .\n"
+        "  safe_test: west twister -T tests\n"
+        "artifacts:\n"
+        "  expected_globs: ['build.log', 'serial.log', 'zephyr.dts', '.config']\n"
+        "safety:\n"
+        "  recovery_path: SWD probe\n"
+        "  require_confirmation_for: ['flash', 'debugger_attach']\n",
+        encoding="utf-8",
+    )
+
+    completed = run_tool([str(READINESS), "--project-root", str(project), "--format", "json"])
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(completed.stdout)
+    assert result["score"] >= 70
+    assert result["memory_found"] is True
+    assert result["grade"] in {"ready-with-gaps", "bring-up-ready"}
+
+
+def test_evidence_capture_recommends_templates(tmp_path: Path) -> None:
+    project = make_zephyr_project(tmp_path)
+    triage = run_tool([str(TRIAGE), "--project-root", str(project), "--symptom", "WHO_AM_I NACK"])
+    assert triage.returncode == 0, triage.stderr
+    packet = project / "debug" / "debug_packet.yaml"
+
+    completed = run_tool([str(CAPTURE), "--packet", str(packet), "--symptom", "WHO_AM_I NACK", "--format", "json"])
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(completed.stdout)
+    ids = [item["id"] for item in result["recommendations"]]
+    assert "i2c_sensor_measurement_plan" in ids
+    assert "evidence_capture_patch_plan" in ids
 
 
 def test_create_failure_notebook(tmp_path: Path) -> None:

@@ -10,12 +10,14 @@ from typing import Any
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parents[1]
 COLLECT_DIR = SKILL_DIR / "scripts" / "collect"
-for path in (SCRIPT_DIR, COLLECT_DIR):
+ANALYZE_DIR = SKILL_DIR / "scripts" / "analyze"
+for path in (SCRIPT_DIR, COLLECT_DIR, ANALYZE_DIR):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
 from collect_debug_packet import build_packet, collect_artifacts, detect_platform, write_packet  # noqa: E402
 from detect_project_context import detect_project_context  # noqa: E402
+from match_failure_patterns import build_haystack, load_patterns, rank_patterns  # noqa: E402
 from validate_debug_packet import render_markdown as render_validation_markdown  # noqa: E402
 from validate_debug_packet import validate_debug_packet  # noqa: E402
 
@@ -50,7 +52,8 @@ def main() -> None:
     if args.symptom:
         packet["symptoms"] = [args.symptom]
     validation = validate_debug_packet(packet)
-    report = render_triage_report(root, context, packet, validation, args.symptom, memory)
+    pattern_matches = match_packet_patterns(packet, root)
+    report = render_triage_report(root, context, packet, validation, args.symptom, memory, pattern_matches)
 
     packet_path = Path(args.packet_out)
     report_path = Path(args.report_out)
@@ -72,6 +75,7 @@ def main() -> None:
         "evidence_score": validation["score"],
         "evidence_grade": validation["grade"],
         "project_memory": bool(memory),
+        "pattern_matches": pattern_matches[:5],
         "packet": "" if args.no_write_packet else str(packet_path),
         "report": str(report_path),
         "missing_required_evidence": validation["required_evidence"]["missing"],
@@ -92,6 +96,7 @@ def render_triage_report(
     validation: dict[str, Any],
     symptom: str,
     memory: dict[str, Any] | None = None,
+    pattern_matches: list[dict[str, Any]] | None = None,
 ) -> str:
     primary = primary_adapter(context)
     lines = [
@@ -127,6 +132,22 @@ def render_triage_report(
     if memory:
         lines.extend(["", "## Project Memory", ""])
         lines.extend(render_project_memory_summary(memory))
+    lines.extend(["## Failure Pattern Matches", ""])
+    if pattern_matches:
+        for idx, match in enumerate(pattern_matches[:5], start=1):
+            verify = match.get("verify", [])
+            verify_text = verify[0] if isinstance(verify, list) and verify else "collect required evidence before ranking this pattern higher"
+            lines.extend(
+                [
+                    f"{idx}. `{match.get('id', 'unknown')}` - score `{match.get('score', 0)}`",
+                    f"   - Domain: `{match.get('domain', 'unknown')}`",
+                    f"   - Matched terms: {format_items(match.get('matched_terms', []))}",
+                    f"   - First verification: {verify_text}",
+                ]
+            )
+    else:
+        lines.append("- No bundled failure pattern matched the available evidence yet.")
+    lines.append("")
     lines.extend(["## Available Artifacts", ""])
     artifacts = packet.get("artifacts", {})
     if isinstance(artifacts, dict) and artifacts:
@@ -188,6 +209,16 @@ def load_project_memory(root: Path) -> dict[str, Any] | None:
     except Exception:
         data = parse_simple_project_memory(text)
     return data if isinstance(data, dict) else None
+
+
+def match_packet_patterns(packet: dict[str, Any], root: Path) -> list[dict[str, Any]]:
+    patterns_dir = SKILL_DIR / "references" / "failure_patterns"
+    try:
+        patterns = load_patterns(patterns_dir)
+        haystack = build_haystack(packet, root)
+        return rank_patterns(patterns, haystack, packet)[:10]
+    except Exception:
+        return []
 
 
 def apply_project_memory(packet: dict[str, Any], memory: dict[str, Any] | None) -> None:

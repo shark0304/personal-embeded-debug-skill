@@ -212,10 +212,12 @@ def run_failure_workflow_tests(skill_dir: Path, scripts: Path) -> list[dict[str,
         packet = root / "debug" / "debug_packet.yaml"
         return [
             run_tool(scripts / "project" / "init_project_memory.py", ["--project-root", str(root), "--overwrite"]),
+            run_tool(scripts / "project" / "score_bringup_readiness.py", ["--project-root", str(root), "--format", "json"]),
             run_tool(
                 scripts / "project" / "run_project_triage.py",
                 ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--packet-out", str(packet), "--report-out", str(root / "debug" / "triage.md")],
             ),
+            run_tool(scripts / "project" / "suggest_evidence_capture.py", ["--packet", str(packet), "--symptom", "I2C sensor probe failed", "--format", "json"]),
             run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(packet), "--format", "json"]),
             run_tool(scripts / "verify" / "generate_fix_verification_plan.py", ["--packet", str(packet), "--hypothesis", "wrong I2C address"]),
             run_tool(scripts / "project" / "create_failure_notebook.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--out-dir", str(root / "debug" / "failure-notebook")]),

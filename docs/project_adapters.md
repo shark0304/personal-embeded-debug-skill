@@ -7,6 +7,7 @@ They do three conservative things:
 1. Detect likely project families from local files.
 2. Generate a local debug adapter packet with evidence globs, suggested commands, runbooks, and deterministic scripts.
 3. Mark risky commands such as flash, debugger attach, and kernel runtime changes before anyone runs them.
+4. Score whether board identity, toolchain, recovery path, safe commands, and first logs are ready for bring-up.
 
 They do not run hardware-changing commands, fetch metadata from the network, or claim a root cause.
 
@@ -20,10 +21,27 @@ python /path/to/personal-embeded-debug-skill/scripts/project/init_project_memory
   --overwrite
 ```
 
+Check readiness before flashing, debugger attach, or kernel-runtime experiments:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/project/score_bringup_readiness.py \
+  --project-root . \
+  --format markdown
+```
+
 ```bash
 python /path/to/personal-embeded-debug-skill/scripts/project/run_project_triage.py \
   --project-root . \
   --symptom "short failure statement"
+```
+
+After triage, ask for the next evidence-capture patch or lab capture plan:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/project/suggest_evidence_capture.py \
+  --packet debug/debug_packet.yaml \
+  --symptom "short failure statement" \
+  --format markdown
 ```
 
 Or run the adapter steps manually:
@@ -102,11 +120,13 @@ python /path/to/personal-embeded-debug-skill/scripts/verify/generate_fix_verific
 
 ```mermaid
 flowchart LR
-    A["Real project"] --> B["Detect adapter"]
-    B --> C["Load project memory"]
-    C --> D["Score evidence"]
-    D --> E["Match failure patterns"]
-    E --> F["Verify and preserve"]
+    A["Real project"] --> B["Load project memory"]
+    B --> C["Score bring-up readiness"]
+    C --> D["Detect adapter"]
+    D --> E["Score evidence"]
+    E --> F["Suggest capture"]
+    F --> G["Match failure patterns"]
+    G --> H["Verify and preserve"]
 ```
 
 Keep the adapter packet in the project `debug/` directory when it helps team handoff. Do not commit logs or captures that contain secrets, customer data, proprietary firmware blobs, or private board identifiers unless your project policy allows it.

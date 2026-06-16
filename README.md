@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml"><img src="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml/badge.svg" alt="Validate skills"/></a>
-  <img src="https://img.shields.io/badge/version-v3.4-0F766E?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-v3.5-0F766E?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/adapters-10_real_project_types-0F766E?style=flat-square" alt="Project adapters"/>
   <img src="https://img.shields.io/badge/scenarios-43_validated-534AB7?style=flat-square" alt="Evaluation scenarios"/>
   <img src="https://img.shields.io/badge/golden_packets-14-888780?style=flat-square" alt="Golden packets"/>
@@ -32,7 +32,7 @@
 Embedded failures are expensive because the evidence is scattered: logs, linker maps, fault registers, devicetree output, RTOS snapshots, scope traces, and half-remembered board history. This workbench makes the failure engineering loop explicit:
 
 <p align="center">
-  <strong>remember project facts → collect decisive evidence → match failure patterns → verify fixes → preserve notebooks/golden packets</strong>
+  <strong>check bring-up readiness → remember project facts → collect decisive evidence → match failure patterns → verify fixes → preserve notebooks/golden packets</strong>
 </p>
 
 It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
@@ -42,10 +42,12 @@ It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 | I have... | Run this | You get |
 |---|---|---|
 | A real firmware or BSP repo | `scripts/project/run_project_triage.py` | Project type, evidence score, safe next commands, triage report |
+| A board bring-up repo before risky changes | `scripts/project/score_bringup_readiness.py` | Readiness score, missing project facts, recovery/evidence checklist |
 | A project that needs persistent board/toolchain facts | `scripts/project/init_project_memory.py` | `.embedded-debug.yml` project memory |
 | A project and want manual adapter details | `scripts/project/detect_project_context.py` | Project type, artifact checklist, safe command suggestions |
 | Logs, ELF/map, DTS/Kconfig, or RTOS snapshots | `scripts/collect/collect_debug_packet.py` | Reproducible `debug_packet.yaml` |
 | A packet and want to know if evidence is enough | `scripts/collect/validate_debug_packet.py` | Completeness score and missing evidence checklist |
+| A packet and need the next capture patch | `scripts/project/suggest_evidence_capture.py` | Capture templates for HardFault, RTOS, Zephyr, Linux, I2C, and lab evidence |
 | A proposed root cause or fix | `scripts/verify/generate_fix_verification_plan.py` | Before/after proof plan and acceptance criteria |
 | A suspected root cause | `scripts/reports/generate_debug_report.py` | Scored report with verification steps |
 | A new embedded idea | `embedded-project-builder/` | Project plan, scaffold, validation checklist |
@@ -64,6 +66,10 @@ Add project memory when the same board will be debugged repeatedly:
 python scripts/project/init_project_memory.py \
   --project-root . \
   --overwrite
+
+python scripts/project/score_bringup_readiness.py \
+  --project-root . \
+  --format markdown
 ```
 
 Manual path:
@@ -89,9 +95,11 @@ python scripts/collect/collect_debug_packet.py \
 | Capability | What it does |
 |---|---|
 | **Project adapters** | Detects Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, Embedded Linux, FreeRTOS, and TinyML projects. |
+| **Bring-up readiness** | Scores whether board identity, toolchain, recovery path, safe commands, and first evidence are ready before risky debugging starts. |
 | **Project memory** | Stores board, toolchain, safe commands, recovery path, and expected artifacts in `.embedded-debug.yml`. |
 | **Evidence packets** | Normalizes logs, ELF/map, DTS/Kconfig, serial output, fault registers, board context, and missing evidence. |
 | **Evidence scoring** | Scores whether a packet is ready for analysis or still too thin for root-cause claims. |
+| **Evidence capture suggestions** | Recommends removable instrumentation snippets and lab capture plans from the current packet and symptom. |
 | **Failure notebooks** | Preserves a local case folder with packet, context, evidence score, hypotheses, outcome, and issue record. |
 | **Pattern matching** | Ranks bundled failure patterns against packet evidence before jumping to a root cause. |
 | **Deterministic analyzers** | Runs focused checks for HardFaults, ESP-IDF panics, Linux logs, DMA/cache alignment, RTOS waits, UART/I2C timing, memory budgets, and TinyML vectors. |
@@ -136,7 +144,9 @@ See [docs/debug_recipes.md](docs/debug_recipes.md) for evidence, commands, and v
 
 ```bash
 python scripts/project/init_project_memory.py --project-root . --overwrite
+python scripts/project/score_bringup_readiness.py --project-root . --format markdown
 python scripts/project/run_project_triage.py --project-root . --symptom "failure statement"
+python scripts/project/suggest_evidence_capture.py --packet debug/debug_packet.yaml --symptom "failure statement" --format markdown
 python scripts/analyze/match_failure_patterns.py --packet debug/debug_packet.yaml --format markdown
 python scripts/verify/generate_fix_verification_plan.py \
   --packet debug/debug_packet.yaml \
@@ -150,8 +160,11 @@ python scripts/project/create_failure_notebook.py \
 
 ```mermaid
 flowchart LR
-    P["Detect Project<br/>adapter context"] --> A["Collect Evidence<br/>debug_packet.yaml"]
+    S["Score Bring-up<br/>readiness"] --> P["Detect Project<br/>adapter context"]
+    P --> A["Collect Evidence<br/>debug_packet.yaml"]
     A --> B["Analyze & Rank<br/>hypothesis table"]
+    A --> X["Suggest Capture<br/>patches/plans"]
+    X --> A
     B --> C["Generate Report<br/>verification plan"]
     C --> D["Preserve<br/>golden packets"]
     D --> E["CI Regression<br/>future checks"]
@@ -159,6 +172,7 @@ flowchart LR
     B --> R["Runbooks"]
     B --> T["Deterministic Tools"]
 
+    style S fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
     style P fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
     style A fill:#f1efe8,stroke:#888780,color:#2C2C2A
     style B fill:#EEEDFE,stroke:#CECBF6,color:#26215C
@@ -230,8 +244,8 @@ Current baseline:
 |---|---|
 | Golden packets | 14 |
 | Evaluation scenarios | 43 |
-| Smoke-tested tools | 35 |
-| Project adapter / triage / failure workflow tests | 12 |
+| Smoke-tested tools | 37 |
+| Project adapter / triage / failure workflow tests | 14 |
 
 ## Boundary
 

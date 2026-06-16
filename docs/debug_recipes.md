@@ -5,12 +5,21 @@ These recipes are quick entry points for common embedded failures. They are inte
 ## Common Flow
 
 ```bash
+python scripts/project/score_bringup_readiness.py \
+  --project-root . \
+  --format markdown
+
 python scripts/project/run_project_triage.py \
   --project-root . \
   --symptom "<short failure statement>"
 
 python scripts/collect/validate_debug_packet.py \
   --packet debug/debug_packet.yaml \
+  --format markdown
+
+python scripts/project/suggest_evidence_capture.py \
+  --packet debug/debug_packet.yaml \
+  --symptom "<short failure statement>" \
   --format markdown
 
 python scripts/analyze/match_failure_patterns.py \
@@ -42,6 +51,7 @@ python scripts/verify/generate_fix_verification_plan.py \
 Each recipe should end with:
 
 - Evidence packet updated.
+- Capture suggestion or readiness gap recorded when evidence is thin.
 - Hypothesis table ranked by evidence for/against.
 - One minimal fix candidate at a time.
 - Verification observation defined before the fix is accepted.
