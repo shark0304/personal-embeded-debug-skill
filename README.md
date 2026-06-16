@@ -1,128 +1,84 @@
 <p align="center">
-  <img src="assets/logo.svg" width="80" height="80" alt="Embedded Debug Workbench Logo"/>
+  <img src="assets/social-preview.svg" width="100%" alt="Embedded Debug Workbench"/>
 </p>
 
 <h1 align="center">Embedded Debug Workbench</h1>
 
 <p align="center">
-  <strong>Evidence-first debugging skill for Cortex-M, Zephyr, ESP-IDF, Linux, FreeRTOS, TinyML, and DMA/Cache</strong>
+  <strong>Turn messy firmware failures into evidence packets, ranked hypotheses, and regression-ready fixes.</strong>
 </p>
 
 <p align="center">
+  <a href="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml"><img src="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml/badge.svg" alt="Validate skills"/></a>
   <img src="https://img.shields.io/badge/version-v3.2-0F766E?style=flat-square" alt="Version"/>
-  <img src="https://img.shields.io/badge/status-active-2ea043?style=flat-square" alt="Status"/>
   <img src="https://img.shields.io/badge/adapters-10_real_project_types-0F766E?style=flat-square" alt="Project adapters"/>
-  <img src="https://img.shields.io/badge/license-MIT-888780?style=flat-square" alt="License"/>
-  <img src="https://img.shields.io/badge/skill-43%20scenarios-534AB7?style=flat-square" alt="Scenarios"/>
+  <img src="https://img.shields.io/badge/scenarios-43_validated-534AB7?style=flat-square" alt="Evaluation scenarios"/>
+  <img src="https://img.shields.io/badge/golden_packets-14-888780?style=flat-square" alt="Golden packets"/>
+  <img src="https://img.shields.io/badge/license-MIT-2ea043?style=flat-square" alt="License"/>
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#real-project-adapters">Project Adapters</a> •
-  <a href="#workflow">Workflow</a> •
-  <a href="#supported-platforms">Platforms</a> •
-  <a href="#repository-layout">Layout</a> •
+  <a href="#start-here">Start Here</a> ·
+  <a href="#real-project-adapters">Project Adapters</a> ·
+  <a href="#debug-recipes">Debug Recipes</a> ·
+  <a href="#workflow">Workflow</a> ·
   <a href="#validation">Validation</a>
 </p>
 
-<br/>
+---
+
+## Why It Exists
+
+Embedded failures are expensive because the evidence is scattered: logs, linker maps, fault registers, devicetree output, RTOS snapshots, scope traces, and half-remembered board history. This skill makes the debugging loop explicit:
 
 <p align="center">
-  <img src="assets/social-preview.png" width="100%" alt="Embedded Debug Workbench"/>
+  <strong>detect project context → collect decisive evidence → rank hypotheses → verify fixes → preserve golden packets</strong>
 </p>
 
-<br/>
+It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 
----
+## Start Here
 
-## Overview
+| I have... | Run this | You get |
+|---|---|---|
+| A real firmware or BSP repo | `scripts/project/detect_project_context.py` | Project type, artifact checklist, safe command suggestions |
+| Logs, ELF/map, DTS/Kconfig, or RTOS snapshots | `scripts/collect/collect_debug_packet.py` | Reproducible `debug_packet.yaml` |
+| A suspected root cause | `scripts/reports/generate_debug_report.py` | Scored report with verification steps |
+| A new embedded idea | `embedded-project-builder/` | Project plan, scaffold, validation checklist |
 
-Collected system artifacts → rank hypotheses with evidence → produce scored reports → preserve resolved cases as golden packets for regression.
-
-### Two-skill model
-
-This repository carries two related skills:
-
-| Skill | Role | When to use |
-|-------|------|-------------|
-| **`embedded-project-builder`** | Upstream planning | 0-to-1 project scaffold, datasheet reading, driver bring-up, validation planning |
-| **`embedded-debug`** | Downstream debug | After a concrete failure appears — collect packets, analyze, report, preserve |
-
-Typical handoff:
-
-```
-project plan → scaffold → build → 🔴 FAIL → collect debug_packet.yaml → analyze → report → preserve as golden packet
-```
-
-<br/>
-
----
-
-## Quick Start
-
-Detect a real firmware/BSP project before debugging:
+### 60-second triage
 
 ```bash
 python scripts/project/detect_project_context.py \
   --project-root . \
   --format markdown
-```
 
-Create a project-local debug adapter packet:
-
-```bash
 python scripts/project/create_project_adapter.py \
   --project-root . \
   --out-dir debug/embedded_debug_adapter \
   --overwrite
-```
 
-Collect a project packet:
-
-```bash
 python scripts/collect/collect_debug_packet.py \
   --project-root . \
   --platform auto \
   --out debug_packet.yaml
 ```
 
-Generate a report:
+## What You Get
 
-```bash
-python scripts/reports/generate_debug_report.py \
-  --packet debug_packet.yaml \
-  --out debug_report.md
-
-python scripts/verify/score_debug_report.py \
-  --report debug_report.md
-```
-
-Analyze a Zephyr I2C sensor init failure:
-
-```bash
-python scripts/analyze/analyze_i2c_init_failure.py \
-  --serial-log serial.log \
-  --dts zephyr.dts \
-  --config .config
-```
-
-Analyze a logic analyzer CSV:
-
-```bash
-python scripts/analyze/analyze_i2c_logic_trace.py \
-  --trace logic_trace.csv
-```
-
-<br/>
-
----
+| Capability | What it does |
+|---|---|
+| **Project adapters** | Detects Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, Embedded Linux, FreeRTOS, and TinyML projects. |
+| **Evidence packets** | Normalizes logs, ELF/map, DTS/Kconfig, serial output, fault registers, board context, and missing evidence. |
+| **Deterministic analyzers** | Runs focused checks for HardFaults, ESP-IDF panics, Linux logs, DMA/cache alignment, RTOS waits, UART/I2C timing, memory budgets, and TinyML vectors. |
+| **Regression loop** | Converts resolved cases into golden packets and validates future skill behavior with CI. |
 
 ## Real Project Adapters
 
-The workbench now has a conservative adapter layer for real project directories. It detects common embedded project families, lists the smallest useful artifacts, suggests deterministic scripts, and marks risky actions before any command touches hardware.
+The adapter layer is conservative by design. It suggests commands and evidence, but hardware-changing actions are labeled before anyone runs them.
 
-| Adapter | Strong signals | Useful first evidence |
-|---------|----------------|-----------------------|
+| Adapter | Strong signals | First evidence to capture |
+|---|---|---|
 | **Zephyr / nRF Connect SDK** | `west.yml`, `prj.conf`, generated `zephyr.dts` | build log, serial log, DTS, Kconfig |
 | **ESP-IDF** | `sdkconfig`, `idf_component.yml`, `idf_component_register` | monitor log, partition table, ELF/map |
 | **PlatformIO** | `platformio.ini` | selected environment, `.pio` ELF/map, serial log |
@@ -133,150 +89,107 @@ The workbench now has a conservative adapter layer for real project directories.
 | **FreeRTOS** | `FreeRTOSConfig.h`, kernel sources | task snapshot, heap/stack state, ISR priorities |
 | **TinyML** | `.tflite`, TFLite Micro sources | model, arena, op resolver, golden vectors, latency |
 
-Risk labels are explicit: `safe-local-build`, `safe-local-test`, `host-io`, `debugger-attached`, `hardware-write`, and `kernel-runtime-change`. Flashing, debugger attach, and kernel runtime changes are never treated as default safe actions.
+Risk labels: `safe-local-build`, `safe-local-test`, `host-io`, `debugger-attached`, `hardware-write`, `kernel-runtime-change`.
 
-See [docs/project_adapters.md](docs/project_adapters.md) for the full adapter workflow.
+Read the full workflow in [docs/project_adapters.md](docs/project_adapters.md).
 
-<br/>
+## Debug Recipes
 
----
+| Symptom | Useful tools |
+|---|---|
+| Cortex-M HardFault or BusFault | `fault_analyzer.py`, `symbolicate_addresses.py`, `map_memory_summary.py` |
+| Zephyr I2C sensor probe failed | `analyze_i2c_init_failure.py`, `dts_probe_check.py`, `kconfig_check.py` |
+| ESP-IDF panic, WDT, or Guru Meditation | `esp_panic_parse.py`, `map_memory_summary.py` |
+| FreeRTOS deadlock or priority inversion | `rtos_snapshot_check.py`, `freertos_wait_graph.py`, `nvic_priority_check.py` |
+| DMA works in polling but fails in interrupt path | `dma_buffer_check.py`, `map_memory_summary.py` |
+| Embedded Linux driver probe/deferred probe | `linux_log_triage.py`, `dts_probe_check.py`, `boot_log_timeline.py` |
+| TinyML memory, latency, or vector mismatch | `memory_budget.py`, `latency_budget.py`, `vector_compare.py` |
+| Low-power current budget drift | `average_current.py`, low-power runbook, measurement plan templates |
 
 ## Workflow
 
 ```mermaid
 flowchart LR
-    P["🧭 Detect Project<br/><small>adapter context</small>"] --> A["📦 Collect Evidence<br/><small>debug_packet.yaml</small>"]
-    A --> B["🔬 Analyze & Rank<br/><small>hypothesis ranking</small>"]
-    B --> C["✅ Generate Report<br/><small>scored debug report</small>"]
-    C --> D["📁 Preserve<br/><small>golden packets</small>"]
-    
-    B --> E["📚 Runbooks<br/><small>focused procedures</small>"]
-    B --> F["⚙️ Analyzers<br/><small>deterministic scripts</small>"]
-    
-    D --> G["🔄 Regression Tests<br/><small>run_skill_regression.py</small>"]
-    
+    P["Detect Project<br/>adapter context"] --> A["Collect Evidence<br/>debug_packet.yaml"]
+    A --> B["Analyze & Rank<br/>hypothesis table"]
+    B --> C["Generate Report<br/>verification plan"]
+    C --> D["Preserve<br/>golden packets"]
+    D --> E["CI Regression<br/>future checks"]
+
+    B --> R["Runbooks"]
+    B --> T["Deterministic Tools"]
+
     style P fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
     style A fill:#f1efe8,stroke:#888780,color:#2C2C2A
     style B fill:#EEEDFE,stroke:#CECBF6,color:#26215C
     style C fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
     style D fill:#f1efe8,stroke:#888780,color:#2C2C2A
-    style E fill:#EEEDFE,stroke:#CECBF6,color:#26215C
-    style F fill:#EEEDFE,stroke:#CECBF6,color:#26215C
-    style G fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
+    style E fill:#E1F5EE,stroke:#9FE1CB,color:#04342C
 ```
 
-<br/>
-
----
-
-## Supported Platforms
+## Supported Domains
 
 | Domain | Focus |
-|--------|-------|
-| **Cortex-M** | HardFault, MemManage, BusFault, UsageFault triage, fault register analysis, stack unwinding |
-| **Zephyr** | Sensor/I2C/IMU bring-up, DTS/Kconfig misconfiguration, thread/ISR issues, power management |
-| **ESP-IDF** | Partition table, NVS, WiFi/BLE stack, OTA failure, memory corruption, panic handler |
-| **Embedded Linux** | Boot log, device tree, driver probe/deferred probe, kernel tracing, sysfs/debugfs |
-| **FreeRTOS** | Stack overflow, priority inversion, deadlock, ISR-to-task, queue/semaphore corruption |
-| **TinyML** | TF Lite Micro arena memory, operator compatibility, latency profiling, quantization mismatch |
-| **DMA/Cache** | Coherency, buffer alignment, double-buffering race, cache invalidation timing |
-| **MCUboot/OTA** | Image slot mismatch, signature verification, swap logic, rollback failure |
+|---|---|
+| **Cortex-M** | HardFault, MemManage, BusFault, UsageFault, stack unwinding |
+| **Zephyr** | Sensor/I2C/IMU bring-up, DTS/Kconfig, thread/ISR behavior |
+| **ESP-IDF** | Panic/WDT logs, partition table, NVS, Wi-Fi/BLE, OTA |
+| **Embedded Linux** | Boot logs, device tree, driver probe, tracing, sysfs/debugfs |
+| **FreeRTOS** | Stack, heap, deadlock, priority inversion, ISR-to-task paths |
+| **TinyML** | TFLite Micro arena, operator coverage, latency, quantization |
+| **DMA/Cache** | Coherency, alignment, invalidation, double-buffer races |
+| **MCUboot/OTA** | Slot state, signing, swap, rollback, secure boot evidence |
 
-<br/>
+## Two-skill Model
 
----
+| Skill | Role | When to use |
+|---|---|---|
+| **`embedded-project-builder`** | Upstream planning | 0-to-1 project scaffold, datasheet reading, driver bring-up, validation planning |
+| **`embedded-debug`** | Downstream debug | After a concrete failure appears: collect packets, analyze, report, preserve |
 
-## Project Builder
-
-The `embedded-project-builder` skill generates upstream planning documents and project scaffolds:
-
-```bash
-# Planning documents only
-python embedded-project-builder/scripts/create_project_plan.py \
-  --scenario zephyr_st_imu_sensor_node \
-  --project-name imu-node \
-  --board xiao_ble/nrf52840/sense \
-  --out-dir /tmp/imu-node-plan
-
-# Full project scaffold
-python embedded-project-builder/scripts/create_project_scaffold.py \
-  --scenario zephyr_st_imu_sensor_node \
-  --project-name imu-node \
-  --board xiao_ble/nrf52840/sense \
-  --out-dir /tmp/imu-node-scaffold
-
-# Validate
-python embedded-project-builder/scripts/validate_project_plan.py \
-  --project-dir /tmp/imu-node-plan
-python embedded-project-builder/scripts/validate_project_scaffold.py \
-  --project-dir /tmp/imu-node-scaffold
+```text
+project plan -> scaffold -> build -> fail -> collect packet -> analyze -> report -> preserve
 ```
 
-When the scaffold hits a build, flash, sensor probe, runtime, DMA/cache, or TinyML validation failure, place evidence in the scaffold `debug/` directory and switch to `embedded-debug`.
+## Repository Map
 
-<br/>
-
----
-
-## Repository Layout
-
+```text
+SKILL.md                       Codex entry and routing rules
+embedded-project-builder/      Upstream project planning skill
+docs/project_adapters.md       Real project adapter workflow
+references/                    Runbooks, platform packs, failure patterns
+scripts/project/               Real project detection and adapter generation
+scripts/collect/               Debug packet collection
+scripts/analyze/               Focused analyzers
+scripts/reports/               Debug report generation
+scripts/verify/                Regression and report scoring
+profiles/                      Board, project, packet schemas
+assets/templates/              Capture plans and instrumentation snippets
+tests/golden_packets/          Regression-ready debug packets
 ```
-├── SKILL.md                   # Codex entry and routing rules
-├── agents/openai.yaml         # UI-facing skill metadata
-├── embedded-project-builder/  # Upstream project planning skill
-├── docs/
-│   └── project_adapters.md    # Real project adapter workflow
-├── references/
-│   ├── runbooks/              # Focused diagnostic procedures
-│   └── failure_patterns/      # Structured failure catalogs
-├── scripts/                   # Collectors, analyzers, reports, CI adapters
-│   └── project/               # Real project detection and adapter generation
-├── profiles/                  # Board, project, packet schemas
-├── assets/
-│   ├── logo.svg               # Repository icon
-│   ├── architecture.png       # Workbench architecture diagram
-│   ├── social-preview.png     # GitHub social preview (1280×640)
-│   └── templates/             # Capture plans, instrumentation templates
-├── tests/
-│   └── golden_packets/        # Regression-ready debug packets
-├── research/
-│   ├── public_cases/          # Raw/extracted/reviewed case pipeline
-│   └── real_trials/           # Real bring-up experiments
-└── .github/workflows/         # CI validation
-```
-
-<br/>
-
----
 
 ## Validation
 
 ```bash
-# From the skill root:
 python scripts/verify/run_skill_regression.py
-python scripts/project/detect_project_context.py --project-root . --format markdown
-python scripts/project/create_project_adapter.py --project-root . --out-dir /tmp/embedded-debug-adapter --overwrite
-python scripts/verify/score_debug_report.py \
-  --report tests/golden_packets/zephyr_st_imu_bringup_real/expected_report.md
 python scripts/smoke_test_tools.py
 python scripts/validate_evaluation_scenarios.py
-pytest tests/
+python -m pytest tests/
 ```
 
-Run `run_skill_regression.py` to see the current golden packet count. The current baseline also smoke-tests bundled tools and validates **43 evaluation scenarios**.
+Current baseline:
 
-<br/>
-
----
+| Check | Baseline |
+|---|---|
+| Golden packets | 14 |
+| Evaluation scenarios | 43 |
+| Smoke-tested tools | 26 |
+| Project adapter tests | 6 |
 
 ## Boundary
 
-This skill does not replace hardware measurement. It is designed to prevent guessing by making missing ELF/map, DTS/Kconfig, serial logs, waveform captures, and board/toolchain context explicit before conclusions are promoted.
-
-<br/>
-
----
+This skill does not replace hardware measurement. It is designed to make missing evidence explicit before conclusions are promoted. It will not treat flashing, debugger attach, fuse/option-byte changes, voltage changes, or Linux runtime module changes as default-safe actions.
 
 <p align="center">
-  <sub>Built with ❤️ for embedded engineers · <a href="https://github.com/shark0304/personal-embeded-debug-skill">shark0304/personal-embeded-debug-skill</a></sub>
+  <sub>Built for embedded engineers who prefer proof over folklore · <a href="https://github.com/shark0304/personal-embeded-debug-skill">shark0304/personal-embeded-debug-skill</a></sub>
 </p>
