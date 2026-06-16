@@ -26,6 +26,7 @@ ARTIFACT_PATTERNS = {
     "dmesg": ["dmesg.log"],
     "boot_log": ["boot.log"],
     "dtb": ["*.dtb"],
+    "rtos_snapshot": ["rtos_snapshot*.json", "rtos_snapshot*.yaml", "rtos_snapshot*.yml", "rtos_snapshot*.txt"],
 }
 
 REQUIRED_BY_PLATFORM = {

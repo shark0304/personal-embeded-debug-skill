@@ -1,0 +1,3 @@
+[    1.234567] synthetic_sensor 1-001a: probe defer: regulator not ready
+[    2.345678] synthetic_sensor 1-001a: probe defer: regulator not ready
+Synthetic dmesg log for documentation only.

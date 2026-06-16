@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml"><img src="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml/badge.svg" alt="Validate skills"/></a>
-  <img src="https://img.shields.io/badge/version-v3.2-0F766E?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-v3.3-0F766E?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/adapters-10_real_project_types-0F766E?style=flat-square" alt="Project adapters"/>
   <img src="https://img.shields.io/badge/scenarios-43_validated-534AB7?style=flat-square" alt="Evaluation scenarios"/>
   <img src="https://img.shields.io/badge/golden_packets-14-888780?style=flat-square" alt="Golden packets"/>
@@ -41,12 +41,22 @@ It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 
 | I have... | Run this | You get |
 |---|---|---|
-| A real firmware or BSP repo | `scripts/project/detect_project_context.py` | Project type, artifact checklist, safe command suggestions |
+| A real firmware or BSP repo | `scripts/project/run_project_triage.py` | Project type, evidence score, safe next commands, triage report |
+| A project and want manual adapter details | `scripts/project/detect_project_context.py` | Project type, artifact checklist, safe command suggestions |
 | Logs, ELF/map, DTS/Kconfig, or RTOS snapshots | `scripts/collect/collect_debug_packet.py` | Reproducible `debug_packet.yaml` |
+| A packet and want to know if evidence is enough | `scripts/collect/validate_debug_packet.py` | Completeness score and missing evidence checklist |
 | A suspected root cause | `scripts/reports/generate_debug_report.py` | Scored report with verification steps |
 | A new embedded idea | `embedded-project-builder/` | Project plan, scaffold, validation checklist |
 
 ### 60-second triage
+
+```bash
+python scripts/project/run_project_triage.py \
+  --project-root . \
+  --symptom "I2C sensor probe failed"
+```
+
+Manual path:
 
 ```bash
 python scripts/project/detect_project_context.py \
@@ -70,6 +80,7 @@ python scripts/collect/collect_debug_packet.py \
 |---|---|
 | **Project adapters** | Detects Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, Embedded Linux, FreeRTOS, and TinyML projects. |
 | **Evidence packets** | Normalizes logs, ELF/map, DTS/Kconfig, serial output, fault registers, board context, and missing evidence. |
+| **Evidence scoring** | Scores whether a packet is ready for analysis or still too thin for root-cause claims. |
 | **Deterministic analyzers** | Runs focused checks for HardFaults, ESP-IDF panics, Linux logs, DMA/cache alignment, RTOS waits, UART/I2C timing, memory budgets, and TinyML vectors. |
 | **Regression loop** | Converts resolved cases into golden packets and validates future skill behavior with CI. |
 
@@ -105,6 +116,8 @@ Read the full workflow in [docs/project_adapters.md](docs/project_adapters.md).
 | Embedded Linux driver probe/deferred probe | `linux_log_triage.py`, `dts_probe_check.py`, `boot_log_timeline.py` |
 | TinyML memory, latency, or vector mismatch | `memory_budget.py`, `latency_budget.py`, `vector_compare.py` |
 | Low-power current budget drift | `average_current.py`, low-power runbook, measurement plan templates |
+
+See [docs/debug_recipes.md](docs/debug_recipes.md) for evidence, commands, and verification criteria for each recipe.
 
 ## Workflow
 
@@ -157,6 +170,8 @@ project plan -> scaffold -> build -> fail -> collect packet -> analyze -> report
 SKILL.md                       Codex entry and routing rules
 embedded-project-builder/      Upstream project planning skill
 docs/project_adapters.md       Real project adapter workflow
+docs/debug_recipes.md          Evidence-first debug recipes
+examples/projects/             Synthetic mini project fixtures
 references/                    Runbooks, platform packs, failure patterns
 scripts/project/               Real project detection and adapter generation
 scripts/collect/               Debug packet collection
@@ -174,6 +189,11 @@ tests/golden_packets/          Regression-ready debug packets
 python scripts/verify/run_skill_regression.py
 python scripts/smoke_test_tools.py
 python scripts/validate_evaluation_scenarios.py
+python scripts/project/run_project_triage.py \
+  --project-root examples/projects/zephyr_i2c_probe_fail \
+  --symptom "I2C sensor probe failed" \
+  --packet-out /tmp/zephyr_debug_packet.yaml \
+  --report-out /tmp/zephyr_triage_report.md
 python -m pytest tests/
 ```
 
@@ -183,8 +203,8 @@ Current baseline:
 |---|---|
 | Golden packets | 14 |
 | Evaluation scenarios | 43 |
-| Smoke-tested tools | 26 |
-| Project adapter tests | 6 |
+| Smoke-tested tools | 29 |
+| Project adapter / triage tests | 9 |
 
 ## Boundary
 

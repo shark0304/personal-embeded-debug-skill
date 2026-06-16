@@ -15,6 +15,14 @@ They do not run hardware-changing commands, fetch metadata from the network, or 
 From the root of a firmware or BSP project:
 
 ```bash
+python /path/to/personal-embeded-debug-skill/scripts/project/run_project_triage.py \
+  --project-root . \
+  --symptom "short failure statement"
+```
+
+Or run the adapter steps manually:
+
+```bash
 python /path/to/personal-embeded-debug-skill/scripts/project/detect_project_context.py \
   --project-root . \
   --format markdown
@@ -36,6 +44,14 @@ python /path/to/personal-embeded-debug-skill/scripts/collect/collect_debug_packe
   --project-root . \
   --platform auto \
   --out debug_packet.yaml
+```
+
+Score the packet before promoting a root cause:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/collect/validate_debug_packet.py \
+  --packet debug_packet.yaml \
+  --format markdown
 ```
 
 ## Supported Project Families
@@ -69,10 +85,10 @@ python /path/to/personal-embeded-debug-skill/scripts/collect/collect_debug_packe
 ```mermaid
 flowchart LR
     A["Real project"] --> B["Detect adapter"]
-    B --> C["Generate adapter packet"]
-    C --> D["Collect debug packet"]
+    B --> C["Score evidence"]
+    C --> D["Generate triage report"]
     D --> E["Run focused analyzer"]
-    E --> F["Write ranked debug report"]
+    E --> F["Verify and preserve"]
 ```
 
 Keep the adapter packet in the project `debug/` directory when it helps team handoff. Do not commit logs or captures that contain secrets, customer data, proprietary firmware blobs, or private board identifiers unless your project policy allows it.

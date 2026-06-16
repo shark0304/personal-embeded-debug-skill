@@ -1,0 +1,3 @@
+-- west build -b nrf52840dk_nrf52840 .
+Board: nrf52840dk_nrf52840
+Synthetic build log for documentation only.

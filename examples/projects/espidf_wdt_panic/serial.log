@@ -1,0 +1,3 @@
+Synthetic ESP-IDF monitor log.
+Guru Meditation Error: Core  0 panic'ed (Interrupt wdt timeout on CPU0).
+Backtrace: 0x42001234:0x3fcebd00 0x42004567:0x3fcebd20

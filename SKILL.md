@@ -38,6 +38,7 @@ If critical context is missing, ask for the smallest useful artifact next, not a
 For complex or multi-layer issues, first suggest generating or completing a debug packet:
 
 ```text
+python scripts/project/run_project_triage.py --project-root . --symptom "<short failure statement>"
 python scripts/project/detect_project_context.py --project-root . --format markdown
 python scripts/collect/collect_debug_packet.py --project-root . --platform auto --out /tmp/debug_packet.yaml
 ```
@@ -78,7 +79,7 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - Low power: `references/runbooks/low_power_runbook.md`
    - Field diagnostics: `references/runbooks/field_diagnostics_runbook.md`
 5. Apply v3 routing when artifacts imply a workflow:
-   - Real project directory: run `scripts/project/detect_project_context.py` first; when the user wants a project-local handoff, generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`; then run `scripts/collect/collect_debug_packet.py`.
+   - Real project directory: prefer `scripts/project/run_project_triage.py` for a safe first pass; for manual handoff, run `scripts/project/detect_project_context.py`, optionally generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`, then run `scripts/collect/collect_debug_packet.py`.
    - Zephyr project or Twister need: generate or parse CI with `scripts/ci/generate_twister_case.py` and `scripts/ci/parse_twister_report.py`.
    - ESP-IDF project: generate or parse pytest-embedded with `scripts/ci/generate_pytest_embedded_case.py` and `scripts/ci/parse_pytest_embedded_report.py`.
    - Renode simulation request: use `scripts/ci/generate_renode_robot_test.py` and `scripts/ci/parse_renode_report.py`.
@@ -122,8 +123,10 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
 9. Use platform packs when the target is clearly STM32, ESP32/ESP-IDF, Nordic/nRF Connect SDK/Zephyr, TI C2000, or Linux SoC BSP.
 10. Use scripts for deterministic calculations:
    - `scripts/collect/collect_debug_packet.py` for reproducible debug packet collection.
+   - `scripts/collect/validate_debug_packet.py` for evidence completeness scoring and missing-evidence checks.
    - `scripts/project/detect_project_context.py` for detecting Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, embedded Linux, FreeRTOS, and TinyML project context before collecting evidence.
    - `scripts/project/create_project_adapter.py` for writing a project-local adapter packet with evidence globs, suggested commands, runbooks, deterministic scripts, and risk labels.
+   - `scripts/project/run_project_triage.py` for safe end-to-end project triage: detect context, collect packet metadata, score evidence, and write a triage report without running hardware-changing commands.
    - `scripts/reports/generate_debug_report.py` for markdown debug reports.
    - `scripts/verify/run_skill_regression.py` for golden packet fixture checks.
    - `scripts/verify/score_debug_report.py` for report quality scoring.

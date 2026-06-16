@@ -20,6 +20,7 @@ def main() -> None:
     results.append(run_tool(scripts / "analyze" / "analyze_i2c_init_failure.py", ["--help"]))
     results.append(run_tool(scripts / "analyze" / "analyze_i2c_logic_trace.py", ["--help"]))
     results.extend(run_project_adapter_tests(scripts))
+    results.extend(run_project_triage_tests(scripts))
     results.append(run_profile_dossier_check(scripts))
     results.append(
         run_tool(
@@ -176,6 +177,26 @@ def run_project_adapter_tests(scripts: Path) -> list[dict[str, object]]:
                 scripts / "project" / "create_project_adapter.py",
                 ["--project-root", str(root), "--out-dir", str(out_dir), "--overwrite"],
             ),
+        ]
+
+
+def run_project_triage_tests(scripts: Path) -> list[dict[str, object]]:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "west.yml").write_text("manifest:\n  projects: []\n", encoding="utf-8")
+        (root / "prj.conf").write_text("CONFIG_I2C=y\nCONFIG_SENSOR=y\n", encoding="utf-8")
+        (root / "build.log").write_text("west build -b nrf52840dk_nrf52840 .\n", encoding="utf-8")
+        (root / "serial.log").write_text("synthetic log: failed to initialize chip, NACK\n", encoding="utf-8")
+        (root / "zephyr.dts").write_text("&i2c0 { status = \"okay\"; };\n", encoding="utf-8")
+        packet = root / "debug" / "debug_packet.yaml"
+        report = root / "debug" / "project_triage_report.md"
+        return [
+            run_tool(
+                scripts / "project" / "run_project_triage.py",
+                ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--packet-out", str(packet), "--report-out", str(report)],
+            ),
+            run_tool(scripts / "collect" / "validate_debug_packet.py", ["--packet", str(packet), "--format", "json"]),
+            run_tool(scripts / "collect" / "validate_debug_packet.py", ["--packet", str(packet), "--format", "markdown"]),
         ]
 
 

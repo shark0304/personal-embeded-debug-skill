@@ -1,0 +1,3 @@
+[00:00:00.120] <err> lsm6dsl: failed to initialize chip
+[00:00:00.121] <err> i2c_nrfx_twim: NACK on address 0x6a
+Synthetic serial log for documentation only.

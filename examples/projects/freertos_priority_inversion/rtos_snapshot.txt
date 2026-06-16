@@ -1,0 +1,3 @@
+high:5:blocked:spi_mutex stack_free=256 stack_total=1024
+low:1:running stack_free=768 stack_total=1024
+Synthetic RTOS snapshot.

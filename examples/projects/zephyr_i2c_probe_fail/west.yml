@@ -1,0 +1,4 @@
+manifest:
+  projects: []
+  self:
+    path: app

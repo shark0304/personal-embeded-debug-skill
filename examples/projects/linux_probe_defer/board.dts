@@ -1,0 +1,7 @@
+/ {
+  synthetic_sensor: sensor@1a {
+    compatible = "synthetic,sensor";
+    reg = <0x1a>;
+    status = "okay";
+  };
+};
