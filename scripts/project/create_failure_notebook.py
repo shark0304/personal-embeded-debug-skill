@@ -54,8 +54,12 @@ def main() -> None:
     write_packet(case_dir / "debug_packet.yaml", packet)
     (case_dir / "context.json").write_text(json.dumps(context, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (case_dir / "README.md").write_text(render_readme(case_id, args.symptom, context, validation), encoding="utf-8")
+    (case_dir / "case_status.json").write_text(render_case_status(args.symptom), encoding="utf-8")
+    (case_dir / "lifecycle.md").write_text(render_lifecycle_template(), encoding="utf-8")
     (case_dir / "evidence_check.md").write_text(render_validation_markdown(validation) + "\n", encoding="utf-8")
+    (case_dir / "evidence.md").write_text(render_evidence_template(), encoding="utf-8")
     (case_dir / "hypotheses.md").write_text(render_hypotheses_template(), encoding="utf-8")
+    (case_dir / "fix_verification.md").write_text(render_fix_verification_template(), encoding="utf-8")
     (case_dir / "outcome.md").write_text(render_outcome_template(), encoding="utf-8")
     copy_template(SKILL_DIR / "assets" / "templates" / "debug_issue_record.md", case_dir / "debug_issue_record.md")
     print(json.dumps({"ok": True, "case_dir": str(case_dir), "case_id": case_id, "evidence_score": validation["score"]}, indent=2, sort_keys=True))
@@ -85,6 +89,7 @@ def render_readme(case_id: str, symptom: str, context: dict[str, Any], validatio
             "## Summary",
             "",
             f"- Symptom: {symptom}",
+            "- Status: `open`",
             f"- Primary adapter: `{context.get('primary_adapter', 'unknown')}`",
             f"- Evidence completeness: **{validation['score']}/100** (`{validation['grade']}`)",
             "",
@@ -92,12 +97,52 @@ def render_readme(case_id: str, symptom: str, context: dict[str, Any], validatio
             "",
             "- `debug_packet.yaml`: normalized local evidence packet.",
             "- `context.json`: project adapter detection output.",
+            "- `case_status.json`: machine-readable lifecycle state.",
+            "- `lifecycle.md`: status transition log.",
+            "- `evidence.md`: observed facts, missing evidence, and capture plan.",
             "- `evidence_check.md`: missing evidence and readiness score.",
             "- `hypotheses.md`: ranked hypotheses as analysis progresses.",
+            "- `fix_verification.md`: before/after proof plan.",
             "- `outcome.md`: final root cause, fix, and regression note.",
             "- `debug_issue_record.md`: editable issue record template.",
             "",
         ]
+    )
+
+
+def render_case_status(symptom: str) -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    return json.dumps(
+        {
+            "status": "open",
+            "symptom": symptom,
+            "events": [
+                {
+                    "at": now,
+                    "status": "open",
+                    "note": "Failure notebook created.",
+                    "hypothesis": "",
+                    "verification": "",
+                }
+            ],
+        },
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def render_lifecycle_template() -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    return f"# Failure Case Lifecycle\n\n## open - {now}\n\n- Note: Failure notebook created.\n\n"
+
+
+def render_evidence_template() -> str:
+    return (
+        "# Evidence\n\n"
+        "## Observed Facts\n\n-\n\n"
+        "## Missing Evidence\n\n-\n\n"
+        "## Capture Plan\n\n-\n\n"
+        "## Non-evidence / Assumptions\n\n-\n"
     )
 
 
@@ -107,6 +152,17 @@ def render_hypotheses_template() -> str:
         "| Rank | Hypothesis | Evidence for | Evidence against | Missing evidence | Verification step | Status |\n"
         "|---|---|---|---|---|---|---|\n"
         "| 1 |  |  |  |  |  | open |\n"
+    )
+
+
+def render_fix_verification_template() -> str:
+    return (
+        "# Fix Verification\n\n"
+        "## Candidate Fix\n\n-\n\n"
+        "## Before Observation\n\n-\n\n"
+        "## After Observation\n\n-\n\n"
+        "## Acceptance Criteria\n\n-\n\n"
+        "## Regression Case\n\n-\n"
     )
 
 

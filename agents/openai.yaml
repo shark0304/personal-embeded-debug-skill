@@ -2,7 +2,7 @@ interface:
   display_name: "Embedded Debug Workbench"
   short_description: "Evidence-first embedded failure workflow"
   brand_color: "#0F766E"
-  default_prompt: "Use $embedded-debug to triage this embedded project: score bring-up readiness, detect project context, load project memory, collect a debug packet, suggest evidence capture, match failure patterns, and produce a fix verification plan."
+  default_prompt: "Use $embedded-debug to onboard or triage this embedded project: create project memory, score bring-up readiness, collect a debug packet, suggest evidence capture, match failure patterns, review the report, and track the failure case lifecycle."
 
 policy:
   allow_implicit_invocation: true

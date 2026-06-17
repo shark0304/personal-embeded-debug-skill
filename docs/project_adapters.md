@@ -2,7 +2,7 @@
 
 Project adapters let Embedded Debug Workbench enter a real firmware or BSP repository without guessing the workflow.
 
-They do three conservative things:
+They do four conservative things:
 
 1. Detect likely project families from local files.
 2. Generate a local debug adapter packet with evidence globs, suggested commands, runbooks, and deterministic scripts.
@@ -14,6 +14,15 @@ They do not run hardware-changing commands, fetch metadata from the network, or 
 ## Quick Start
 
 From the root of a firmware or BSP project:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/project/onboard_project.py \
+  --project-root . \
+  --symptom "short failure statement" \
+  --overwrite
+```
+
+The onboarding command creates or updates `.embedded-debug.yml`, writes an adapter packet under `debug/onboarding/`, scores bring-up readiness, and creates `debug/README.md` for local engineering artifacts.
 
 ```bash
 python /path/to/personal-embeded-debug-skill/scripts/project/init_project_memory.py \
@@ -90,6 +99,19 @@ python /path/to/personal-embeded-debug-skill/scripts/verify/generate_fix_verific
   --hypothesis "candidate root cause"
 ```
 
+Review a report before handoff and move a notebook through its lifecycle:
+
+```bash
+python /path/to/personal-embeded-debug-skill/scripts/review/review_debug_report.py \
+  --report debug/project_triage_report.md \
+  --format markdown
+
+python /path/to/personal-embeded-debug-skill/scripts/project/update_failure_case.py \
+  --case-dir debug/failure-notebook/<case-id> \
+  --status verified \
+  --verification "before/after evidence matches"
+```
+
 ## Supported Project Families
 
 | Adapter | Signals | Typical next evidence |
@@ -120,13 +142,16 @@ python /path/to/personal-embeded-debug-skill/scripts/verify/generate_fix_verific
 
 ```mermaid
 flowchart LR
-    A["Real project"] --> B["Load project memory"]
-    B --> C["Score bring-up readiness"]
-    C --> D["Detect adapter"]
-    D --> E["Score evidence"]
-    E --> F["Suggest capture"]
-    F --> G["Match failure patterns"]
-    G --> H["Verify and preserve"]
+    A["Real project"] --> B["Onboard project"]
+    B --> C["Load project memory"]
+    C --> D["Score bring-up readiness"]
+    D --> E["Detect adapter"]
+    E --> F["Score evidence"]
+    F --> G["Suggest capture"]
+    G --> H["Match failure patterns"]
+    H --> I["Review report"]
+    I --> J["Track case lifecycle"]
+    J --> K["Export golden candidate"]
 ```
 
 Keep the adapter packet in the project `debug/` directory when it helps team handoff. Do not commit logs or captures that contain secrets, customer data, proprietary firmware blobs, or private board identifiers unless your project policy allows it.

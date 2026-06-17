@@ -210,17 +210,22 @@ def run_failure_workflow_tests(skill_dir: Path, scripts: Path) -> list[dict[str,
         (root / "serial.log").write_text("failed to initialize chip: NACK\n", encoding="utf-8")
         (root / "zephyr.dts").write_text("&i2c0 { status = \"okay\"; };\n", encoding="utf-8")
         packet = root / "debug" / "debug_packet.yaml"
+        case_dir = root / "debug" / "failure-notebook" / "smoke-case"
+        golden_dir = root / "debug" / "golden-candidate"
         return [
+            run_tool(scripts / "project" / "onboard_project.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--overwrite"]),
             run_tool(scripts / "project" / "init_project_memory.py", ["--project-root", str(root), "--overwrite"]),
             run_tool(scripts / "project" / "score_bringup_readiness.py", ["--project-root", str(root), "--format", "json"]),
             run_tool(
                 scripts / "project" / "run_project_triage.py",
                 ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--packet-out", str(packet), "--report-out", str(root / "debug" / "triage.md")],
             ),
+            run_tool(scripts / "review" / "review_debug_report.py", ["--report", str(root / "debug" / "triage.md"), "--format", "json", "--min-score", "80"]),
             run_tool(scripts / "project" / "suggest_evidence_capture.py", ["--packet", str(packet), "--symptom", "I2C sensor probe failed", "--format", "json"]),
             run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(packet), "--format", "json"]),
             run_tool(scripts / "verify" / "generate_fix_verification_plan.py", ["--packet", str(packet), "--hypothesis", "wrong I2C address"]),
-            run_tool(scripts / "project" / "create_failure_notebook.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--out-dir", str(root / "debug" / "failure-notebook")]),
+            run_tool(scripts / "project" / "create_failure_notebook.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--out-dir", str(root / "debug" / "failure-notebook"), "--case-id", "smoke-case"]),
+            run_tool(scripts / "project" / "update_failure_case.py", ["--case-dir", str(case_dir), "--status", "verified", "--note", "smoke verification", "--hypothesis", "wrong I2C address", "--verification", "ACK observed", "--export-golden", str(golden_dir)]),
             run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(skill_dir / "tests" / "golden_packets" / "zephyr_st_imu_bringup_real" / "debug_packet.yaml"), "--format", "markdown"]),
         ]
 

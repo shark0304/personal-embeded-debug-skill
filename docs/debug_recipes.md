@@ -5,6 +5,11 @@ These recipes are quick entry points for common embedded failures. They are inte
 ## Common Flow
 
 ```bash
+python scripts/project/onboard_project.py \
+  --project-root . \
+  --symptom "<short failure statement>" \
+  --overwrite
+
 python scripts/project/score_bringup_readiness.py \
   --project-root . \
   --format markdown
@@ -26,9 +31,26 @@ python scripts/analyze/match_failure_patterns.py \
   --packet debug/debug_packet.yaml \
   --format markdown
 
+python scripts/review/review_debug_report.py \
+  --report debug/project_triage_report.md \
+  --format markdown
+
 python scripts/verify/generate_fix_verification_plan.py \
   --packet debug/debug_packet.yaml \
   --hypothesis "<candidate root cause>"
+```
+
+For cases that need handoff, preserve lifecycle state:
+
+```bash
+python scripts/project/create_failure_notebook.py \
+  --project-root . \
+  --symptom "<short failure statement>"
+
+python scripts/project/update_failure_case.py \
+  --case-dir debug/failure-notebook/<case-id> \
+  --status investigating \
+  --note "evidence capture in progress"
 ```
 
 ## Recipes
@@ -53,6 +75,8 @@ Each recipe should end with:
 - Evidence packet updated.
 - Capture suggestion or readiness gap recorded when evidence is thin.
 - Hypothesis table ranked by evidence for/against.
+- Debug report reviewed for unsupported certainty and missing verification.
 - One minimal fix candidate at a time.
 - Verification observation defined before the fix is accepted.
-- Golden packet or regression note preserved after resolution.
+- Failure case status moved through `open`, `investigating`, `fixed`, `verified`, and `regression-added` when appropriate.
+- Golden packet candidate or regression note preserved after resolution.

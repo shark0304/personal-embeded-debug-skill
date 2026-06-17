@@ -1,6 +1,6 @@
 ---
 name: embedded-debug
-description: Advanced Embedded Failure Intelligence Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, TinyML deployment debugging, bring-up readiness scoring, evidence capture planning, project memory, failure notebooks, failure pattern matching, or fix verification planning. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
+description: Advanced Embedded Failure Intelligence Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, TinyML deployment debugging, project onboarding, bring-up readiness scoring, evidence capture planning, project memory, failure notebook lifecycle tracking, failure pattern matching, debug report review, or fix verification planning. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
 ---
 
 # Embedded Debug
@@ -79,9 +79,10 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - Low power: `references/runbooks/low_power_runbook.md`
    - Field diagnostics: `references/runbooks/field_diagnostics_runbook.md`
 5. Apply v3 routing when artifacts imply a workflow:
+   - Real project directory being connected for the first time: run `scripts/project/onboard_project.py` to create project memory, adapter packet, readiness report, and local debug workspace notes.
    - Real project directory before risky board actions: run `scripts/project/score_bringup_readiness.py`, then prefer `scripts/project/run_project_triage.py` for a safe first pass. If the project should remember board/toolchain/recovery facts, create `.embedded-debug.yml` with `scripts/project/init_project_memory.py`.
    - Existing packet needs the next capture point: run `scripts/project/suggest_evidence_capture.py` to choose removable instrumentation or lab capture templates.
-   - Failure case needs team handoff: create `debug/failure-notebook/<case>/` with `scripts/project/create_failure_notebook.py`.
+   - Failure case needs team handoff: create `debug/failure-notebook/<case>/` with `scripts/project/create_failure_notebook.py`, then advance status with `scripts/project/update_failure_case.py`.
    - Existing packet needs likely-pattern ranking: run `scripts/analyze/match_failure_patterns.py`.
    - Proposed fix or hypothesis needs proof: run `scripts/verify/generate_fix_verification_plan.py`.
    - Manual handoff: run `scripts/project/detect_project_context.py`, optionally generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`, then run `scripts/collect/collect_debug_packet.py`.
@@ -91,7 +92,7 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - Linux driver/dmesg: route to `linux_driver_probe_runbook.md`.
    - Field device logs: route to `field_diagnostics_runbook.md`.
    - "Verify the fix": create a regression packet or CI/HIL case.
-   - Debug report review: score it with `scripts/verify/score_debug_report.py`.
+   - Debug report review: score it with `scripts/review/review_debug_report.py` for handoff discipline or `scripts/verify/score_debug_report.py` for legacy report-contract checks.
    - Zephyr sensor init failed, LSM6DSL/LSM6DS3/IMU init failed, I2C sensor not ready, WHO_AM_I failure, NACK, or sensor probe timeout: route first to `references/runbooks/zephyr_sensor_bringup_runbook.md` and run `scripts/analyze/analyze_i2c_init_failure.py` when serial log, DTS, and config are available.
    - I2C logic analyzer CSV: run `scripts/analyze/analyze_i2c_logic_trace.py` and keep the capture in the debug packet.
 6. When the failure shape is unclear, read `references/case_archetypes.md` before ranking causes.
@@ -130,12 +131,15 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - `scripts/collect/collect_debug_packet.py` for reproducible debug packet collection.
    - `scripts/collect/validate_debug_packet.py` for evidence completeness scoring and missing-evidence checks.
    - `scripts/project/detect_project_context.py` for detecting Zephyr, ESP-IDF, PlatformIO, STM32Cube, Arduino, bare-metal CMake/Make, embedded Linux, FreeRTOS, and TinyML project context before collecting evidence.
+   - `scripts/project/onboard_project.py` for first-time project onboarding: project memory, adapter packet, readiness report, and `debug/README.md`.
    - `scripts/project/create_project_adapter.py` for writing a project-local adapter packet with evidence globs, suggested commands, runbooks, deterministic scripts, and risk labels.
    - `scripts/project/run_project_triage.py` for safe end-to-end project triage: detect context, collect packet metadata, score evidence, and write a triage report without running hardware-changing commands.
    - `scripts/project/init_project_memory.py` for creating a local `.embedded-debug.yml` with board/toolchain/recovery facts.
    - `scripts/project/score_bringup_readiness.py` for checking board identity, toolchain, safe commands, recovery path, and first evidence before bring-up or risky debug actions.
    - `scripts/project/suggest_evidence_capture.py` for recommending evidence-capture templates and removable instrumentation from a packet or symptom.
    - `scripts/project/create_failure_notebook.py` for preserving a local failure case record, packet, evidence score, hypotheses, and outcome.
+   - `scripts/project/update_failure_case.py` for failure-case lifecycle states and optional golden-packet candidate export.
+   - `scripts/review/review_debug_report.py` for checking reports for evidence discipline, unsupported certainty, missing verification, and handoff readiness.
    - `scripts/analyze/match_failure_patterns.py` for ranking bundled failure patterns against packet evidence.
    - `scripts/verify/generate_fix_verification_plan.py` for defining before/after evidence, acceptance criteria, and non-evidence for a proposed fix.
    - `scripts/reports/generate_debug_report.py` for markdown debug reports.
