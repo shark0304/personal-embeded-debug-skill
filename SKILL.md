@@ -1,6 +1,6 @@
 ---
 name: embedded-debug
-description: Advanced Embedded Failure Intelligence Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, TinyML deployment debugging, project onboarding, bring-up readiness scoring, evidence capture planning, project memory, failure notebook lifecycle tracking, failure pattern matching, debug report review, or fix verification planning. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
+description: Advanced Embedded Failure Intelligence Workbench. Use when helping embedded engineers with evidence-driven Cortex-M/RTOS fault triage, DMA/cache coherency, Zephyr/ESP-IDF, embedded Linux board/driver bring-up, boot/OTA, low power, datasheet/register review, TinyML deployment debugging, project onboarding, bring-up readiness scoring, evidence capture planning, project memory, failure notebook lifecycle tracking, failure pattern matching, public embedded project mining, debug report review, or fix verification planning. Prefer reproducible debug packets, runbooks, verifiable hypotheses, and regression-ready reports.
 ---
 
 # Embedded Debug
@@ -83,6 +83,7 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - Real project directory before risky board actions: run `scripts/project/score_bringup_readiness.py`, then prefer `scripts/project/run_project_triage.py` for a safe first pass. If the project should remember board/toolchain/recovery facts, create `.embedded-debug.yml` with `scripts/project/init_project_memory.py`.
    - Existing packet needs the next capture point: run `scripts/project/suggest_evidence_capture.py` to choose removable instrumentation or lab capture templates.
    - Failure case needs team handoff: create `debug/failure-notebook/<case>/` with `scripts/project/create_failure_notebook.py`, then advance status with `scripts/project/update_failure_case.py`.
+   - Public repository mining for adapter coverage: use `scripts/research/mine_github_projects.py`, `scripts/research/score_embedded_relevance.py`, `scripts/research/fetch_project_snapshot.py`, `scripts/research/extract_project_signals.py`, and `scripts/research/build_project_corpus.py`; keep outputs under ignored `research/project_corpus/`.
    - Existing packet needs likely-pattern ranking: run `scripts/analyze/match_failure_patterns.py`.
    - Proposed fix or hypothesis needs proof: run `scripts/verify/generate_fix_verification_plan.py`.
    - Manual handoff: run `scripts/project/detect_project_context.py`, optionally generate `debug/embedded_debug_adapter/` with `scripts/project/create_project_adapter.py`, then run `scripts/collect/collect_debug_packet.py`.
@@ -140,6 +141,11 @@ python scripts/collect/collect_debug_packet.py --project-root . --platform auto 
    - `scripts/project/create_failure_notebook.py` for preserving a local failure case record, packet, evidence score, hypotheses, and outcome.
    - `scripts/project/update_failure_case.py` for failure-case lifecycle states and optional golden-packet candidate export.
    - `scripts/review/review_debug_report.py` for checking reports for evidence discipline, unsupported certainty, missing verification, and handoff readiness.
+   - `scripts/research/mine_github_projects.py` for rate-limited public GitHub repository candidate discovery through official API or fixtures.
+   - `scripts/research/score_embedded_relevance.py` for ranking candidate repositories by embedded-project signals.
+   - `scripts/research/fetch_project_snapshot.py` for manifest-only public project snapshots without default full clones.
+   - `scripts/research/extract_project_signals.py` for running adapter detection on snapshots.
+   - `scripts/research/build_project_corpus.py` for producing CSV/JSONL project corpus indexes.
    - `scripts/analyze/match_failure_patterns.py` for ranking bundled failure patterns against packet evidence.
    - `scripts/verify/generate_fix_verification_plan.py` for defining before/after evidence, acceptance criteria, and non-evidence for a proposed fix.
    - `scripts/reports/generate_debug_report.py` for markdown debug reports.

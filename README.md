@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml"><img src="https://github.com/shark0304/personal-embeded-debug-skill/actions/workflows/validate-skills.yml/badge.svg" alt="Validate skills"/></a>
-  <img src="https://img.shields.io/badge/version-v3.6-0F766E?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-v3.7-0F766E?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/adapters-10_real_project_types-0F766E?style=flat-square" alt="Project adapters"/>
   <img src="https://img.shields.io/badge/scenarios-43_validated-534AB7?style=flat-square" alt="Evaluation scenarios"/>
   <img src="https://img.shields.io/badge/golden_packets-14-888780?style=flat-square" alt="Golden packets"/>
@@ -22,6 +22,7 @@
   <a href="#real-project-adapters">Project Adapters</a> ·
   <a href="#debug-recipes">Debug Recipes</a> ·
   <a href="docs/operating_loop.md">Operating Loop</a> ·
+  <a href="docs/public_project_mining.md">Project Mining</a> ·
   <a href="#workflow">Workflow</a> ·
   <a href="#validation">Validation</a>
 </p>
@@ -53,6 +54,7 @@ It is not an embedded encyclopedia. It is a workbench for reducing guesswork.
 | A proposed root cause or fix | `scripts/verify/generate_fix_verification_plan.py` | Before/after proof plan and acceptance criteria |
 | A debug report before handoff | `scripts/review/review_debug_report.py` | Premature-conclusion checks and handoff readiness score |
 | A failure case that needs lifecycle tracking | `scripts/project/update_failure_case.py` | Status transitions and optional golden-packet candidate export |
+| Public repos to study for adapter coverage | `scripts/research/mine_github_projects.py` | Rate-limited candidate corpus for embedded project mining |
 | A suspected root cause | `scripts/reports/generate_debug_report.py` | Scored report with verification steps |
 | A new embedded idea | `embedded-project-builder/` | Project plan, scaffold, validation checklist |
 
@@ -112,6 +114,7 @@ python scripts/collect/collect_debug_packet.py \
 | **Evidence capture suggestions** | Recommends removable instrumentation snippets and lab capture plans from the current packet and symptom. |
 | **Failure notebooks** | Preserves a local case folder with packet, lifecycle status, evidence, hypotheses, fix verification, outcome, and issue record. |
 | **Report review** | Checks debug reports for missing evidence discipline, unsupported certainty, weak verification, and handoff readiness. |
+| **Public project mining** | Discovers public embedded repos, scores relevance, snapshots manifest files, and builds a corpus index without default full clones. |
 | **Pattern matching** | Ranks bundled failure patterns against packet evidence before jumping to a root cause. |
 | **Deterministic analyzers** | Runs focused checks for HardFaults, ESP-IDF panics, Linux logs, DMA/cache alignment, RTOS waits, UART/I2C timing, memory budgets, and TinyML vectors. |
 | **Regression loop** | Converts resolved cases into golden packets and validates future skill behavior with CI. |
@@ -150,6 +153,25 @@ Read the full workflow in [docs/project_adapters.md](docs/project_adapters.md).
 | Low-power current budget drift | `average_current.py`, low-power runbook, measurement plan templates |
 
 See [docs/debug_recipes.md](docs/debug_recipes.md) for evidence, commands, and verification criteria for each recipe.
+
+## Public Project Mining
+
+```bash
+python scripts/research/mine_github_projects.py --dry-run
+
+python scripts/research/mine_github_projects.py \
+  --query "zephyr prj.conf embedded firmware" \
+  --limit 100 \
+  --delay 2 \
+  --out research/project_corpus/candidates.jsonl
+
+python scripts/research/score_embedded_relevance.py \
+  --input research/project_corpus/candidates.jsonl \
+  --out research/project_corpus/candidates_scored.jsonl \
+  --min-score 20
+```
+
+See [docs/public_project_mining.md](docs/public_project_mining.md) for the full rate-limited workflow. The default path uses official APIs, environment `GITHUB_TOKEN`, manifest snapshots, and ignored local corpus outputs.
 
 ## Failure Workflow
 
@@ -233,6 +255,7 @@ embedded-project-builder/      Upstream project planning skill
 docs/project_adapters.md       Real project adapter workflow
 docs/debug_recipes.md          Evidence-first debug recipes
 docs/operating_loop.md         Project onboarding and failure case lifecycle
+docs/public_project_mining.md  Rate-limited public embedded project mining
 examples/projects/             Synthetic mini project fixtures
 references/                    Runbooks, platform packs, failure patterns
 scripts/project/               Real project detection and adapter generation
@@ -241,6 +264,7 @@ scripts/collect/               Debug packet collection
 scripts/analyze/               Focused analyzers
 scripts/verify/                Report scoring and fix verification planning
 scripts/reports/               Debug report generation
+scripts/research/              Public case and project corpus mining
 profiles/                      Board, project, packet schemas
 assets/templates/              Capture plans and instrumentation snippets
 tests/golden_packets/          Regression-ready debug packets
@@ -266,8 +290,8 @@ Current baseline:
 |---|---|
 | Golden packets | 14 |
 | Evaluation scenarios | 43 |
-| Smoke-tested tools | 40 |
-| Project adapter / triage / failure workflow tests | 18 |
+| Smoke-tested tools | 45 |
+| Project adapter / triage / failure workflow tests | 21 |
 
 ## Boundary
 

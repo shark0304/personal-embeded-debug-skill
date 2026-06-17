@@ -9,3 +9,5 @@ tmp/
 temp/
 debug/
 .embedded-debug.yml
+research/project_corpus/
+research/github_cache/

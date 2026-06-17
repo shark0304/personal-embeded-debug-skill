@@ -76,6 +76,7 @@ def main() -> None:
     results.append(run_tool(scripts / "uart_baud_check.py", ["--clock", "80M", "--baud", "115200", "--oversampling", "16"]))
     results.append(run_vector_compare(scripts / "vector_compare.py"))
     results.append(run_tool(scripts / "validate_evaluation_scenarios.py", ["--skill-dir", str(skill_dir)]))
+    results.extend(run_project_miner_tests(scripts))
 
     failed = [item for item in results if item["returncode"] != 0]
     output = {"tool_count": len(results), "failed_count": len(failed), "results": results}
@@ -227,6 +228,58 @@ def run_failure_workflow_tests(skill_dir: Path, scripts: Path) -> list[dict[str,
             run_tool(scripts / "project" / "create_failure_notebook.py", ["--project-root", str(root), "--symptom", "I2C sensor probe failed", "--out-dir", str(root / "debug" / "failure-notebook"), "--case-id", "smoke-case"]),
             run_tool(scripts / "project" / "update_failure_case.py", ["--case-dir", str(case_dir), "--status", "verified", "--note", "smoke verification", "--hypothesis", "wrong I2C address", "--verification", "ACK observed", "--export-golden", str(golden_dir)]),
             run_tool(scripts / "analyze" / "match_failure_patterns.py", ["--packet", str(skill_dir / "tests" / "golden_packets" / "zephyr_st_imu_bringup_real" / "debug_packet.yaml"), "--format", "markdown"]),
+        ]
+
+
+def run_project_miner_tests(scripts: Path) -> list[dict[str, object]]:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        fixture = root / "github_search.json"
+        fixture.write_text(
+            json.dumps(
+                {
+                    "query": "zephyr prj.conf embedded firmware",
+                    "items": [
+                        {
+                            "full_name": "example/zephyr-sensor",
+                            "html_url": "https://github.com/example/zephyr-sensor",
+                            "description": "Zephyr prj.conf firmware",
+                            "language": "C",
+                            "stargazers_count": 1,
+                            "topics": ["zephyr", "embedded"],
+                            "default_branch": "main",
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        candidates = root / "candidates.jsonl"
+        repo = root / "repo"
+        repo.mkdir()
+        (repo / "west.yml").write_text("manifest:\n  projects: []\n", encoding="utf-8")
+        (repo / "prj.conf").write_text("CONFIG_I2C=y\n", encoding="utf-8")
+        snapshot_root = root / "snapshots"
+        snapshot_dir = snapshot_root / "example__zephyr-sensor"
+        signals_dir = root / "signals"
+        return [
+            run_tool(scripts / "research" / "mine_github_projects.py", ["--fixture-json", str(fixture), "--out", str(candidates), "--limit", "5"]),
+            run_tool(scripts / "research" / "score_embedded_relevance.py", ["--input", str(candidates), "--out", str(root / "scored.jsonl"), "--min-score", "1"]),
+            run_tool(scripts / "research" / "fetch_project_snapshot.py", ["--repo", "example/zephyr-sensor", "--local-repo", str(repo), "--out-dir", str(snapshot_root)]),
+            run_tool(scripts / "research" / "extract_project_signals.py", ["--snapshot-dir", str(snapshot_dir), "--out", str(signals_dir / "example__zephyr-sensor.json")]),
+            run_tool(
+                scripts / "research" / "build_project_corpus.py",
+                [
+                    "--candidates",
+                    str(candidates),
+                    "--signals-dir",
+                    str(signals_dir),
+                    "--out-csv",
+                    str(root / "index.csv"),
+                    "--out-jsonl",
+                    str(root / "index.jsonl"),
+                ],
+            ),
         ]
 
 
